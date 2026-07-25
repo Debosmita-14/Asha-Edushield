@@ -97,3 +97,4 @@ const Store = {
   }
 };
 Store.load();
+\n// milestone: event store resilience
