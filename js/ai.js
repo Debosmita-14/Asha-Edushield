@@ -65,3 +65,4 @@ const AI = {
     } catch (e) { /* fallback silent */ }
   }
 };
+\n// milestone: AI service stability
