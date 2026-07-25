@@ -102,7 +102,17 @@ const App = {
   logout() {
     document.getElementById('app-page').classList.remove('active');
     document.getElementById('login-page').classList.add('active');
+    const area = document.getElementById('content-area');
+    if (area) area.innerHTML = '';
+    const badge = document.getElementById('notif-badge');
+    if (badge) badge.textContent = '0';
     this.mapInstance = null;
+  },
+
+  clearNotifications() {
+    const badge = document.getElementById('notif-badge');
+    if (badge) badge.textContent = '0';
+    UI.showToast('Alerts cleared', 'The live alert feed has been reset.', 'warning');
   },
 
   _buildNav() {
