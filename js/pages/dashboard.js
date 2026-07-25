@@ -78,3 +78,4 @@ Pages._typeIcon = function (type) {
     'Bullying': 'fa-fist-raised'
   }[type] || 'fa-flag';
 };
+

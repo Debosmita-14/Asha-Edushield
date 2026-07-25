@@ -338,3 +338,4 @@ const IncidentPage = {
     });
   }
 };
+
