@@ -1,0 +1,8 @@
+# Secrets — never commit
+.env
+*.key
+node_modules/
+npm-debug.log*
+.DS_Store
+Thumbs.db
+external_repo/
