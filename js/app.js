@@ -70,6 +70,11 @@ const App = {
       { id: 'security', icon: 'fa-shield-alt', label: 'Security' },
       { id: 'admin', icon: 'fa-user-tie', label: 'Admin' },
     ];
+    const roleHint = document.createElement('div');
+    roleHint.className = 'logo-sub';
+    roleHint.textContent = 'Choose a role to enter the platform';
+    const container = document.getElementById('role-grid');
+    container.insertAdjacentElement('beforebegin', roleHint);
     document.getElementById('role-grid').innerHTML = roles.map((r, i) =>
       `<div class="role-btn${i === 0 ? ' selected' : ''}" onclick="App.selectRole(this,'${r.id}')">
         <i class="fas ${r.icon}"></i><span>${r.label}</span>
@@ -168,6 +173,7 @@ const App = {
       ['📋 Exam Alert', 'Suspicious behavior detected — Hall B, Seat C-05.', 'alert'],
       ['🛡 Guardian Agent', 'Threat level updated: Block B → HIGH risk zone.', 'warning'],
       ['📍 Safe Travel', 'Route deviation detected — Anjali K. near Market Road.', 'alert'],
+      ['✅ Dispatch', 'Responder team dispatched to the latest high-risk incident.', 'alert'],
     ];
     let i = 0;
     setInterval(() => {
