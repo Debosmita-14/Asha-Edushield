@@ -195,3 +195,4 @@ const App = {
 };
 
 window.addEventListener('load', () => App.init());
+\n// milestone: app lifecycle
