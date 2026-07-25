@@ -69,6 +69,7 @@ const DATA = {
     {id:'INC-4814',type:'Harassment',loc:'Lab Block',reporter:'Anonymous',time:'6 hr ago',sev:'medium',status:'Resolved',lat:28.6138,lng:77.2110},
     {id:'INC-4813',type:'Bullying',loc:'Sports Ground',reporter:'Vikram P.',time:'8 hr ago',sev:'low',status:'Resolved',lat:28.6125,lng:77.2065},
     {id:'INC-4812',type:'Mental Health',loc:'Hostel 2',reporter:'Anonymous',time:'10 hr ago',sev:'high',status:'Resolved',lat:28.6148,lng:77.2082},
+    {id:'INC-4811',type:'SOS',loc:'Sports Complex',reporter:'Nisha R.',time:'12 hr ago',sev:'critical',status:'Resolved',lat:28.6118,lng:77.2062},
   ],
 
   guards: [
