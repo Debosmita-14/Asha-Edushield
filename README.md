@@ -13,3 +13,7 @@ Open index.html in a browser to explore the demo experience.
 
 ## Repository status
 This workspace now includes the full campus safety experience with live AI workflows, role-based dashboards, and incident-response modules.
+
+## Milestone notes
+This milestone focuses on improving the emergency response workflow and incident review experience.
+
