@@ -10,3 +10,6 @@ ASHA EduShield 2.0 is a campus safety and wellbeing demo experience for students
 
 ## Run locally
 Open index.html in a browser to explore the demo experience.
+
+## Repository status
+This workspace now includes the full campus safety experience with live AI workflows, role-based dashboards, and incident-response modules.
