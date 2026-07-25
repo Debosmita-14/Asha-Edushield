@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ASHA EduShield 2.0 — AI Campus Safety OS</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-page" class="page active">
+  <div class="login-box">
+    <div class="logo">🛡 ASHA</div>
+    <div class="logo-sub">EduShield 2.0 — AI Campus Safety OS</div>
+    <div style="margin-bottom:20px;padding:12px;background:rgba(59,130,246,.08);border-radius:10px;border:1px solid rgba(59,130,246,.2);font-size:.8rem;color:var(--text2);text-align:left">
+      <strong style="color:var(--accent2)">Demo credentials</strong> — select any role and click Enter
+    </div>
+    <div class="role-grid" id="role-grid"></div>
+    <button class="login-btn" onclick="App.login()">
+      <i class="fas fa-shield-alt"></i> Enter Platform →
+    </button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app-page" class="page">
+  <div class="app-layout">
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo">🛡 ASHA</div>
+        <div class="logo-sub">EDUSHIELD 2.0</div>
+      </div>
+      <div id="nav-container"></div>
+      <div style="margin-top:auto;padding:12px 8px;border-top:1px solid var(--border)">
+        <div class="nav-item" id="nav-logout" onclick="App.logout()" style="color:#f87171">
+          <i class="fas fa-sign-out-alt"></i><span>Logout</span>
+        </div>
+      </div>
+    </div>
+    <div class="main-content">
+      <div class="topbar">
+        <div class="topbar-title" id="page-title">
+          <i class="fas fa-home" id="page-icon"></i> Dashboard
+        </div>
+        <div class="topbar-right">
+          <span style="font-size:.78rem;color:var(--text2);display:flex;align-items:center;gap:6px">
+            <span class="live-dot"></span> All agents active
+          </span>
+          <div class="notif-btn" onclick="UI.showToast('3 new alerts','SOS · Ragging · Wellness','alert')">
+            <i class="fas fa-bell" style="font-size:1.1rem;color:var(--text2)"></i>
+            <span class="badge" id="notif-badge">3</span>
+          </div>
+          <div class="avatar" id="user-avatar" onclick="UI.showToast('Profile','Role: Student · ID: STU-2024-4821')">S</div>
+        </div>
+      </div>
+      <div class="content-area" id="content-area"></div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" class="toast hidden">
+  <div id="toast-icon" style="font-size:1.1rem;flex-shrink:0;margin-top:1px">🔔</div>
+  <div>
+    <div id="toast-title" style="font-weight:700;font-size:.88rem"></div>
+    <div id="toast-body" style="font-size:.78rem;color:var(--text2);margin-top:3px"></div>
+  </div>
+  <div onclick="document.getElementById('toast').classList.add('hidden')" style="margin-left:auto;cursor:pointer;color:var(--text2);font-size:.8rem;flex-shrink:0">✕</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="js/data.js"></script>
+<script src="js/agents.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/pages/dashboard.js"></script>
+<script src="js/pages/sos.js"></script>
+<script src="js/pages/report.js"></script>
+<script src="js/pages/wellness.js"></script>
+<script src="js/pages/womensafety.js"></script>
+<script src="js/pages/classroom.js"></script>
+<script src="js/pages/exam.js"></script>
+<script src="js/pages/incidents.js"></script>
+<script src="js/pages/dispatch.js"></script>
+<script src="js/pages/agentspage.js"></script>
+<script src="js/pages/analytics.js"></script>
+<script src="js/pages/safetravel.js"></script>
+<script src="js/pages/map.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
