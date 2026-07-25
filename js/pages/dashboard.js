@@ -6,6 +6,7 @@ Pages.dashboard = function (el) {
   el.innerHTML = `
   <div class="stat-grid">
     <div class="stat-card red animate-in"><div class="stat-label">Active Incidents</div><div class="stat-value" style="color:#f87171">7</div><div class="stat-change down">↑ 2 from yesterday</div><i class="fas fa-exclamation-triangle stat-icon" style="color:#ef4444"></i></div>
+    <div class="stat-card purple animate-in"><div class="stat-label">Safety Score</div><div class="stat-value" style="color:#a78bfa">94/100</div><div class="stat-change up">Improved from last week</div><i class="fas fa-shield-alt stat-icon" style="color:#8b5cf6"></i></div>
     <div class="stat-card blue animate-in"><div class="stat-label">Students Safe</div><div class="stat-value" style="color:#60a5fa">4,821</div><div class="stat-change up">98.6% safety rate</div><i class="fas fa-user-shield stat-icon" style="color:#3b82f6"></i></div>
     <div class="stat-card green animate-in"><div class="stat-label">Resolved Today</div><div class="stat-value" style="color:#34d399">23</div><div class="stat-change up">Avg 4.2 min response</div><i class="fas fa-check-circle stat-icon" style="color:#10b981"></i></div>
     <div class="stat-card yellow animate-in"><div class="stat-label">AI Agents Active</div><div class="stat-value" style="color:#fbbf24">13/15</div><div class="stat-change up">All systems nominal</div><i class="fas fa-robot stat-icon" style="color:#f59e0b"></i></div>
