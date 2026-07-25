@@ -8,6 +8,7 @@
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
 .page{display:none;min-height:100vh}.page.active{display:flex}
+::selection{background:rgba(59,130,246,.35);color:#fff}
 #login-page{align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 0%,#1a0a2e 0%,var(--bg) 70%)}
 .login-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:48px 40px;width:440px;text-align:center;box-shadow:0 0 80px rgba(239,68,68,.12)}
 .logo{font-size:2.2rem;font-weight:900;background:linear-gradient(135deg,#ef4444,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px;letter-spacing:-1px}
@@ -138,4 +139,4 @@ tr:hover td{background:rgba(255,255,255,.015)}
 .stat-card.pink::after{background:#ec4899}
 @keyframes mapPulse{0%{box-shadow:0 0 0 0 rgba(239,68,68,.6)}70%{box-shadow:0 0 0 14px rgba(239,68,68,0)}100%{box-shadow:0 0 0 0 rgba(239,68,68,0)}}
 @media(max-width:1100px){.stat-grid{grid-template-columns:1fr 1fr}.three-col{grid-template-columns:1fr 1fr}}
-@media(max-width:800px){.two-col,.three-col{grid-template-columns:1fr}.sidebar{width:64px}.nav-item span,.sidebar-logo .logo-sub,.nav-section{display:none}.content-area{padding:16px}}
+@media(max-width:800px){.two-col,.three-col{grid-template-columns:1fr}.sidebar{width:64px}.nav-item span,.sidebar-logo .logo-sub,.nav-section{display:none}.content-area{padding:16px}.login-box{width:min(92vw,440px);padding:32px 24px}}
