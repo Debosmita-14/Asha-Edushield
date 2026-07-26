@@ -41,13 +41,6 @@ Pages.wellness = function (el) {
             <div style="font-size:.78rem;color:${r.color}">${r.val}</div></div>
           </div>`).join('')}
       </div>
-      <div class="card">
-        <div class="card-title">Anonymous Journal</div>
-        <textarea id="journal-entry" placeholder="Write your thoughts here... This is private and encrypted. Only you can see it." style="width:100%;min-height:120px;padding:12px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:.875rem;resize:vertical;font-family:inherit;outline:none"></textarea>
-        <button class="btn success" style="margin-top:10px;width:100%" onclick="Wellness.saveJournal()">
-          <i class="fas fa-lock"></i> Save Privately
-        </button>
-      </div>
     </div>
   </div>`;
 
@@ -107,12 +100,5 @@ const Wellness = {
     const inp = document.getElementById('chat-in');
     if (inp) inp.value = text;
     this.send();
-  },
-
-  saveJournal() {
-    const val = document.getElementById('journal-entry').value;
-    if (!val.trim()) { UI.showToast('Journal empty', 'Write something first.'); return; }
-    UI.showToast('Journal Saved', 'Your entry is encrypted and stored privately. 🔒');
-    document.getElementById('journal-entry').value = '';
   }
 };

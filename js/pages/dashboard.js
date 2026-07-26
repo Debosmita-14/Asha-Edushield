@@ -206,10 +206,6 @@ Pages._adminDash = function (el) {
       <div class="card-title">📈 30-Day Incident Trend</div>
       <canvas id="adm-trend" height="200"></canvas>
     </div>
-    <div class="card">
-      <div class="card-title">🏙 Tech Stack Health</div>
-      <div id="adm-stack"></div>
-    </div>
   </div>`;
 
   // Safety scores
@@ -255,21 +251,6 @@ Pages._adminDash = function (el) {
     {label:'Incidents',data:[42,38,31,27,19],backgroundColor:'rgba(239,68,68,.7)',borderRadius:6},
     {label:'Resolved',data:[40,37,30,27,18],backgroundColor:'rgba(16,185,129,.7)',borderRadius:6}
   ]);
-
-  // Stack health
-  document.getElementById('adm-stack').innerHTML = [
-    {name:'MongoDB Atlas',icon:'🍃',status:'Connected',color:'#10b981',detail:'4,821 docs · 12ms latency'},
-    {name:'DigitalOcean',icon:'🌊',status:'Running',color:'#0080ff',detail:'2 Droplets · 99.9% uptime'},
-    {name:'Solana',icon:'◎',status:'Active',color:'#9945ff',detail:'847 evidence NFTs minted'},
-    {name:'ElevenLabs',icon:'🔊',status:'Ready',color:'#f59e0b',detail:'8 languages · 234 calls today'},
-    {name:'Gemini API',icon:'✨',status:'Active',color:'#4285f4',detail:'7,241 calls · Vision + Pro'},
-    {name:'Actian Vector DB',icon:'🗄',status:'Synced',color:'#06b6d4',detail:'16,000+ embeddings indexed'},
-  ].map(t=>`
-    <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)">
-      <span style="font-size:1.1rem">${t.icon}</span>
-      <div style="flex:1"><div style="font-size:.83rem;font-weight:600">${t.name}</div><div style="font-size:.72rem;color:var(--text2)">${t.detail}</div></div>
-      <span style="font-size:.68rem;font-weight:700;color:${t.color};background:${t.color}18;padding:2px 8px;border-radius:20px">${t.status}</span>
-    </div>`).join('');
 
   // Live events — real-time incoming alerts for admin
   Pages._renderLiveEvents('adm-live-events');

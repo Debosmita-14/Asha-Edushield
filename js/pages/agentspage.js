@@ -33,65 +33,7 @@ Pages.agents = function (el) {
   </div>
 
   <!-- Agent Cards -->
-  <div class="three-col" id="agents-grid"></div>
-
-  <!-- Data Flow Architecture -->
-  <div class="card">
-    <div class="card-title">🏗 System Architecture — Data Flow</div>
-    <div style="overflow-x:auto;padding:10px 0">
-      <div style="min-width:800px;padding:10px">
-        <!-- Row 1: Input sources -->
-        <div style="display:flex;justify-content:center;gap:12px;margin-bottom:8px">
-          ${['Student SOS','Voice Input','Image/Video','Anonymous Report','GPS Stream','Exam Feed'].map((s,i)=>`
-            <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:.72rem;font-weight:600;text-align:center;color:var(--text2);border-top:2px solid ${['#ef4444','#f59e0b','#8b5cf6','#3b82f6','#10b981','#06b6d4'][i]}">${s}</div>`).join('')}
-        </div>
-        <!-- Arrow down -->
-        <div style="text-align:center;color:var(--text2);font-size:.8rem;margin:4px 0">↓ ↓ ↓ ↓ ↓ ↓</div>
-        <!-- Row 2: Guardian -->
-        <div style="display:flex;justify-content:center;margin-bottom:8px">
-          <div style="background:rgba(239,68,68,.1);border:2px solid #ef4444;border-radius:12px;padding:12px 32px;font-size:.85rem;font-weight:700;color:#f87171;text-align:center">
-            🛡 Guardian Agent<br><span style="font-size:.7rem;font-weight:400;color:var(--text2)">Threat scoring · Routing · Escalation</span>
-          </div>
-        </div>
-        <!-- Arrow + branches -->
-        <div style="text-align:center;color:var(--text2);font-size:.8rem;margin:4px 0">↓ Routes to specialist agents ↓</div>
-        <!-- Row 3: Specialist agents -->
-        <div style="display:flex;justify-content:center;gap:10px;margin-bottom:8px;flex-wrap:wrap">
-          ${[
-            {icon:'🆘',name:'SOS Agent',color:'#f59e0b'},
-            {icon:'👩',name:'Women Safety',color:'#ec4899'},
-            {icon:'🚫',name:'Anti-Ragging',color:'#8b5cf6'},
-            {icon:'🧠',name:'Wellness Agent',color:'#10b981'},
-            {icon:'📋',name:'Exam Integrity',color:'#3b82f6'},
-            {icon:'🔍',name:'Investigation',color:'#a855f7'},
-          ].map(a=>`
-            <div style="background:var(--bg3);border:1px solid ${a.color}44;border-radius:10px;padding:10px 14px;font-size:.75rem;font-weight:600;text-align:center;border-top:2px solid ${a.color}">
-              <div style="font-size:1.1rem;margin-bottom:4px">${a.icon}</div>${a.name}
-            </div>`).join('')}
-        </div>
-        <div style="text-align:center;color:var(--text2);font-size:.8rem;margin:4px 0">↓ ↓ ↓</div>
-        <!-- Row 4: Infrastructure -->
-        <div style="display:flex;justify-content:center;gap:10px;margin-bottom:8px;flex-wrap:wrap">
-          ${[
-            {icon:'✨',name:'Gemini API',color:'#4285f4'},
-            {icon:'🗄',name:'Actian Vector DB',color:'#06b6d4'},
-            {icon:'🍃',name:'MongoDB Atlas',color:'#10b981'},
-            {icon:'◎',name:'Solana Chain',color:'#9945ff'},
-            {icon:'🔊',name:'ElevenLabs',color:'#f59e0b'},
-          ].map(a=>`
-            <div style="background:${a.color}12;border:1px solid ${a.color}44;border-radius:8px;padding:8px 14px;font-size:.72rem;font-weight:600;text-align:center;color:${a.color}">
-              ${a.icon} ${a.name}
-            </div>`).join('')}
-        </div>
-        <div style="text-align:center;color:var(--text2);font-size:.8rem;margin:4px 0">↓</div>
-        <!-- Row 5: Output -->
-        <div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap">
-          ${['📡 Dispatch','📊 Admin Dashboard','📜 Compliance Report','🔔 Student Alert','📋 Evidence Package'].map(s=>`
-            <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:.72rem;font-weight:600;color:var(--text2)">${s}</div>`).join('')}
-        </div>
-      </div>
-    </div>
-  </div>`;
+  <div class="three-col" id="agents-grid"></div>`;
 
   // Render agent cards
   document.getElementById('agents-grid').innerHTML = DATA.agents.map(a => `
