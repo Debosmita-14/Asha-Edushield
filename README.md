@@ -46,6 +46,29 @@ node server.js
 
 Open **http://localhost:8080**, pick any role, and click **Enter Platform**.
 
+## ☁️ Deploy to Vercel
+
+The app runs on Vercel with **zero build step**. The `/api/*` routes are Vercel serverless
+functions (`api/gemini.js`, `api/eleven.js`, `api/alert.js`) — the same proxy logic as
+`server.js`, so keys stay server-side.
+
+1. **Import** `Debosmita-14/Asha-Edushield` into Vercel (New Project → Import Git Repository).
+2. **Framework preset:** `Other`. Leave Build Command and Output Directory **empty** — it's static + serverless.
+3. **Add Environment Variables** (Project → Settings → Environment Variables) — this is the step that makes Gemini Vision work in production:
+
+   | Name           | Required | Value |
+   |----------------|----------|-------|
+   | `GEMINI_KEY`   | ✅       | your Gemini API key |
+   | `ELEVEN_KEY`   | optional | your ElevenLabs key |
+   | `ELEVEN_VOICE` | optional | voice id (defaults to a built-in) |
+   | `RESEND_KEY`   | optional | for real emergency emails |
+   | `TWILIO_SID` / `TWILIO_TOKEN` / `TWILIO_FROM` | optional | for SMS / WhatsApp |
+
+4. **Deploy** (or **Redeploy** after adding the vars — env vars only apply to new deployments).
+
+> Without `GEMINI_KEY` set in Vercel, the vision features return an honest "vision unavailable"
+> notice instead of fabricating results.
+
 ## 🏗 Architecture
 
 ```

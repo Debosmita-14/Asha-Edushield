@@ -1,0 +1,13 @@
+{
+  "name": "asha-edushield",
+  "version": "2.0.0",
+  "private": true,
+  "description": "ASHA EduShield 2.0 — AI Campus Safety OS",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
