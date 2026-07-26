@@ -24,7 +24,7 @@ Pages.dispatch = function (el) {
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px">
       <div class="form-row" style="margin:0"><label>Incident Type</label>
         <select class="filter-select" id="d-type" style="width:100%">
-          <option>SOS Emergency</option><option>Ragging</option><option>Harassment</option><option>Medical</option><option>Fire</option>
+          <option>Medical SOS (Heart Pain / Cardiac)</option><option>SOS Emergency</option><option>Ragging</option><option>Harassment</option><option>Medical</option><option>Fire</option>
         </select>
       </div>
       <div class="form-row" style="margin:0"><label>Location</label>
@@ -101,18 +101,30 @@ const Dispatch = {
     const type = document.getElementById('d-type').value;
     const loc = document.getElementById('d-loc').value || 'Campus';
     const priority = document.getElementById('d-priority').value;
+    const isMed = type.toLowerCase().includes('medical') || type.toLowerCase().includes('heart');
+
     const available = DATA.guards.filter(g => g.status === 'Available');
-    if (!available.length) { UI.showToast('No Guards Available', 'All guards are currently deployed.', 'warning'); return; }
-    const guard = available[0];
-    guard.status = 'Dispatched';
+    const guard = available.length ? available[0] : { name: 'Admin Quick Responder', id: 'G0' };
+    if (available.length) guard.status = 'Dispatched';
+
+    let ambText = '';
+    if (isMed && typeof DATA.ambulances !== 'undefined') {
+      const ambList = DATA.ambulances.filter(a => a.status === 'Available');
+      const amb = ambList[0] || DATA.ambulances[0];
+      if (amb) {
+        amb.status = 'Dispatched';
+        ambText = `<br>🚑 <strong>Campus Ambulance:</strong> ${amb.name} (${amb.vehicleNo}) dispatched with driver ${amb.driver} (${amb.phone}).`;
+      }
+    }
+
     document.getElementById('dispatch-result').innerHTML = `
     <div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.3);border-radius:12px;padding:16px;font-size:.875rem">
-      <div style="font-weight:700;color:#34d399;margin-bottom:8px">✅ Dispatch Confirmed</div>
+      <div style="font-weight:700;color:#34d399;margin-bottom:8px">✅ Emergency Dispatch Confirmed</div>
       <strong>${guard.name}</strong> dispatched to <strong>${loc}</strong><br>
-      Incident: ${type} · Priority: ${UI.pill(priority)}<br>
-      ETA: ~3 minutes · Ticket: INC-${4823 + Math.floor(Math.random()*10)}
+      Incident: ${type} · Priority: ${UI.pill(priority)}${ambText}<br>
+      ETA: ~2.5 minutes · Ticket: INC-${4823 + Math.floor(Math.random()*10)}
     </div>`;
-    UI.showToast('Dispatched!', `${guard.name} en route to ${loc}.`, 'alert');
+    UI.showToast('Dispatched!', `${guard.name} ${ambText ? '+ Ambulance' : ''} en route to ${loc}.`, 'alert');
     this.renderBoard();
   }
 };

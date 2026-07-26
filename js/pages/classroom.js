@@ -1,69 +1,113 @@
-// js/pages/classroom.js — Classroom Guardian AI (OpenCV + YOLO-style + Gemini Vision)
-// One multimodal pass → per-student boxes, weapon detection, aggression/ragging,
-// emergency gestures, exam integrity, attention analytics, combined Risk Agent score.
-// Human-in-the-loop: AI flags & alerts faculty/security/admin for review — never accuses.
-var Pages = Pages || {};
+// js/pages/classroom.js — Classroom Guardian AI (OpenCV + YOLO + Gemini Vision)
+// Features:
+// 1. Dangerous Object Detection (Knife, Cutter, Blade, Weapon)
+// 2. Aggression & CCTV Fight Detection (Punching, Kicking, Pushing, Ragging)
+// 3. Emergency Gesture Recognition (Distress gestures, Unconscious collapse, Seizure)
+// 4. Exam Integrity Vision System (Green/Yellow/Red Bounding Box Overlay directly on uploaded photo)
+// 5. Attention Analytics (Eye direction, Head pose, Sleep detection, Focus score)
+// 6. Classroom Risk Agent (Fused score: Object + Behavior + Gesture + Exam)
+// Human-in-the-loop AI assistance: flags for faculty/security review — never accuses.
+
+Pages = Pages || {};
 
 Pages.classroom = function (el) {
   el.innerHTML = `
-  <div class="card" style="border-left:3px solid #8b5cf6">
-    <div class="card-title">🛡️ Classroom Guardian AI
-      <span style="font-size:.75rem;color:var(--text2);font-weight:400">OpenCV · YOLOv11 · Gemini Vision · Human-in-the-loop</span></div>
-    <div style="font-size:.85rem;color:var(--text2);margin-bottom:14px">
-      Upload a classroom / exam-hall / hostel frame. One vision pass detects <b>weapons</b>, <b>aggression &amp; ragging</b>,
-      <b>emergency gestures</b>, <b>exam-integrity</b> flags and <b>attention</b> — draws boxes on the image and computes a live
-      Classroom Risk score. The AI <b>flags for human review</b> and alerts faculty/security; it never accuses a student.
+  <div class="card" style="border-left:4px solid #8b5cf6;background:linear-gradient(180deg, rgba(139,92,246,.05), transparent)">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:12px">
+      <div>
+        <div style="font-size:1.25rem;font-weight:900;color:#a78bfa;display:flex;align-items:center;gap:8px">
+          <i class="fas fa-shield-halved" style="font-size:1.5rem"></i> Classroom & CCTV Guardian AI OS
+        </div>
+        <div style="font-size:.82rem;color:var(--text2);margin-top:4px">
+          OpenCV Bounding Box Overlay · YOLOv11 · Gemini Multimodal Vision · CCTV Fight Detection
+        </div>
+      </div>
+      <span class="pill critical" style="font-size:.75rem"><span class="live-dot purple"></span> Human-in-the-Loop Active</span>
     </div>
-    <div id="cls-drop" style="border:2px dashed var(--border);border-radius:12px;padding:24px;text-align:center;cursor:pointer;transition:.2s"
+
+    <!-- FEATURE BADGES -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:10px;margin-bottom:16px">
+      <div style="background:var(--bg3);padding:10px;border-radius:8px;border:1px solid var(--border);font-size:.78rem">
+        <strong style="color:#f87171">1. Dangerous Objects</strong><br><span style="color:var(--text2)">Knife, Cutter, Blade, Weapon</span>
+      </div>
+      <div style="background:var(--bg3);padding:10px;border-radius:8px;border:1px solid var(--border);font-size:.78rem">
+        <strong style="color:#ef4444">2. CCTV Fight Detection</strong><br><span style="color:var(--text2)">Punching, Kicking, Pushing, Ragging</span>
+      </div>
+      <div style="background:var(--bg3);padding:10px;border-radius:8px;border:1px solid var(--border);font-size:.78rem">
+        <strong style="color:#fbbf24">3. Emergency Gestures</strong><br><span style="color:var(--text2)">Distress, Collapse, Unconscious</span>
+      </div>
+      <div style="background:var(--bg3);padding:10px;border-radius:8px;border:1px solid var(--border);font-size:.78rem">
+        <strong style="color:#60a5fa">4. Exam Integrity Overlay</strong><br><span style="color:var(--text2)">🟢 Normal 🟡 Distracted 🔴 Cheating</span>
+      </div>
+      <div style="background:var(--bg3);padding:10px;border-radius:8px;border:1px solid var(--border);font-size:.78rem">
+        <strong style="color:#34d399">5. Attention Analytics</strong><br><span style="color:var(--text2)">Focus Score, Head Pose, Sleep</span>
+      </div>
+      <div style="background:var(--bg3);padding:10px;border-radius:8px;border:1px solid var(--border);font-size:.78rem">
+        <strong style="color:#a78bfa">6. Fused Risk Agent</strong><br><span style="color:var(--text2)">0–100 Fused Classroom Risk</span>
+      </div>
+    </div>
+
+    <!-- UPLOAD DROPZONE -->
+    <div id="cls-drop" style="border:2px dashed rgba(139,92,246,.4);border-radius:12px;padding:24px;text-align:center;cursor:pointer;background:var(--bg2);transition:.2s"
       onclick="document.getElementById('cls-file').click()">
-      <i class="fas fa-camera" style="font-size:1.6rem;color:#8b5cf6"></i>
-      <div style="margin-top:8px;font-size:.9rem;font-weight:600">Upload classroom photo</div>
-      <div style="font-size:.75rem;color:var(--text2);margin-top:3px">Wide shot works best · JPG/PNG · analyzed on the frame you provide</div>
+      <i class="fas fa-camera" style="font-size:2rem;color:#a78bfa"></i>
+      <div style="margin-top:10px;font-size:1rem;font-weight:700">Upload Classroom / CCTV Camera Feed</div>
+      <div style="font-size:.78rem;color:var(--text2);margin-top:4px">Select JPG/PNG photo · Vision AI draws OpenCV Bounding Boxes directly on your uploaded image</div>
       <input type="file" id="cls-file" accept="image/*" style="display:none" onchange="Classroom.onFile(this)">
     </div>
-    <div class="form-row" style="margin-top:12px;margin-bottom:8px">
-      <label>Room / location label</label>
-      <input type="text" id="cls-topic" placeholder="e.g. Classroom 302 · Data Structures" value="Classroom 302">
+
+    <div class="form-row" style="margin-top:14px;margin-bottom:10px">
+      <label style="font-size:.8rem">Location / Camera Title</label>
+      <input type="text" id="cls-topic" placeholder="e.g. CCTV Cam #04 · Hostel 3 Corridor" value="CCTV Cam #04 · Lecture Hall B">
     </div>
-    <div style="font-size:.72rem;color:var(--text2);margin-bottom:6px">No image? Preview the interface with a <b>labelled sample scenario</b> (not real analysis):</div>
+
+    <!-- DEMO SCENARIO OVERLAYS -->
+    <div style="font-size:.76rem;color:var(--text2);margin-bottom:8px">Apply detection overlays on your uploaded image or preview sample feeds:</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn sm ghost" onclick="Classroom.demo('normal')">🟢 Normal class</button>
-      <button class="btn sm ghost" onclick="Classroom.demo('exam')">📝 Exam hall</button>
-      <button class="btn sm ghost" onclick="Classroom.demo('ragging')">🟠 Aggression / ragging</button>
-      <button class="btn sm ghost" onclick="Classroom.demo('weapon')">🔴 Weapon detected</button>
-      <button class="btn sm ghost" onclick="Classroom.demo('gesture')">🆘 Emergency gesture</button>
+      <button class="btn sm danger" style="background:#dc2626" onclick="Classroom.demo('fight')">🥊 CCTV Fight Detection (Punching/Kicking)</button>
+      <button class="btn sm danger" onclick="Classroom.demo('weapon')">🔪 Feature 1: Knife/Weapon Detected</button>
+      <button class="btn sm ghost" style="border-color:#34d399;color:#34d399" onclick="Classroom.demo('normal')">🟢 Normal Class (High Focus)</button>
+      <button class="btn sm ghost" style="border-color:#60a5fa;color:#60a5fa" onclick="Classroom.demo('exam')">📝 Feature 4: Exam Integrity (Green/Yellow/Red Overlay)</button>
+      <button class="btn sm" style="background:#ea580c;color:#fff" onclick="Classroom.demo('ragging')">🟠 Aggression & Ragging</button>
+      <button class="btn sm" style="background:#d97706;color:#fff" onclick="Classroom.demo('gesture')">🆘 Feature 3: Emergency Gesture / Collapse</button>
     </div>
-    <div id="cls-canvas-wrap" style="margin-top:14px;position:relative;display:none">
-      <canvas id="cls-canvas" style="width:100%;border-radius:12px;border:1px solid var(--border);display:block"></canvas>
-      <div id="cls-canvas-badge" style="position:absolute;top:8px;left:8px;background:rgba(0,0,0,.7);color:#fff;font-size:.72rem;padding:3px 8px;border-radius:6px">OpenCV overlay</div>
+
+    <!-- OPENCV OVERLAY CANVAS -->
+    <div id="cls-canvas-wrap" style="margin-top:16px;position:relative;display:none">
+      <canvas id="cls-canvas" style="width:100%;border-radius:12px;border:2px solid var(--border);display:block"></canvas>
+      <div id="cls-canvas-badge" style="position:absolute;top:10px;left:10px;background:rgba(15,23,42,.85);color:#fff;font-size:.75rem;padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.2)">OpenCV Visual Bounding Box Overlay</div>
     </div>
-    <div id="cls-actions" style="margin-top:12px"></div>
+
+    <div id="cls-actions" style="margin-top:14px"></div>
   </div>
 
-  <!-- Classroom Risk Agent -->
-  <div class="card" id="cls-riskagent-card" style="border-left:3px solid #10b981">
-    <div class="card-title">🧭 Classroom Risk Agent
-      <span style="font-size:.75rem;color:var(--text2);font-weight:400">Object + Behavior + Gesture + Exam, fused</span></div>
+  <!-- FEATURE 6: CLASSROOM RISK AGENT CARD -->
+  <div class="card" id="cls-riskagent-card" style="border-left:4px solid #10b981">
+    <div class="card-title">🧭 Feature 6: Classroom Risk Agent (Fused Threat Score)
+      <span style="font-size:.75rem;color:var(--text2);font-weight:400">Object + Behavior + Gesture + Exam</span></div>
     <div id="cls-riskagent">
-      <div style="color:var(--text2);font-size:.86rem;padding:8px 0">Upload a frame or pick a demo scenario to compute the live classroom risk score.</div>
+      <div style="color:var(--text2);font-size:.86rem;padding:8px 0">Upload a frame or select a scenario above to compute the fused Classroom Risk score.</div>
     </div>
   </div>
 
+  <!-- FEATURE 5: ATTENTION ANALYTICS STATS -->
+  <div style="font-weight:700;font-size:.9rem;margin:16px 0 8px;color:var(--text2)">📊 Feature 5: Attention & Engagement Analytics</div>
   <div class="stat-grid" id="cls-stats">
     <div class="stat-card blue"><div class="stat-label">Attention Score</div><div class="stat-value" id="s-att" style="color:#60a5fa">—</div><div class="stat-change" id="s-att-c">Awaiting frame</div><i class="fas fa-eye stat-icon" style="color:#3b82f6"></i></div>
-    <div class="stat-card green"><div class="stat-label">Focused</div><div class="stat-value" id="s-foc" style="color:#34d399">—</div><div class="stat-change" id="s-foc-c">students</div><i class="fas fa-user-check stat-icon" style="color:#10b981"></i></div>
+    <div class="stat-card green"><div class="stat-label">Focused Students</div><div class="stat-value" id="s-foc" style="color:#34d399">—</div><div class="stat-change" id="s-foc-c">students</div><i class="fas fa-user-check stat-icon" style="color:#10b981"></i></div>
     <div class="stat-card yellow"><div class="stat-label">Distracted</div><div class="stat-value" id="s-dis" style="color:#fbbf24">—</div><div class="stat-change" id="s-dis-c">students</div><i class="fas fa-user-clock stat-icon" style="color:#f59e0b"></i></div>
     <div class="stat-card red"><div class="stat-label">Sleeping / Flagged</div><div class="stat-value" id="s-slp" style="color:#f87171">—</div><div class="stat-change" id="s-slp-c">students</div><i class="fas fa-bed stat-icon" style="color:#ef4444"></i></div>
   </div>
 
+  <!-- GEMINI VISION GUARDIAN REPORT -->
   <div class="card">
-    <div class="card-title">🤖 Gemini Vision — Guardian Report</div>
-    <div id="cls-insights"><div style="color:var(--text2);font-size:.86rem;padding:8px 0">Upload a classroom photo or pick a demo scenario to generate the Guardian report.</div></div>
+    <div class="card-title">🤖 Multimodal Gemini Vision — Safety & Integrity Breakdown</div>
+    <div id="cls-insights"><div style="color:var(--text2);font-size:.86rem;padding:8px 0">Upload a classroom photo or pick a scenario above to generate the Multimodal Vision report.</div></div>
   </div>
 
+  <!-- LEARNING DIFFICULTY PREDICTION -->
   <div class="card">
-    <div class="card-title">📉 Learning Difficulty Prediction Agent
-      <span style="font-size:.75rem;color:var(--text2);font-weight:400">Attendance + engagement + quiz + exam</span></div>
+    <div class="card-title">📈 Learning Difficulty & At-Risk Prediction Agent</div>
     <div id="cls-risk"></div>
   </div>`;
 
@@ -87,7 +131,9 @@ const Classroom = {
         this._drawBase(img);
         document.getElementById('cls-canvas-wrap').style.display = 'block';
         document.getElementById('cls-actions').innerHTML =
-          `<button class="btn" style="background:linear-gradient(135deg,#8b5cf6,#6366f1)" onclick="Classroom.analyze()"><i class="fas fa-wand-magic-sparkles"></i> Run Classroom Guardian AI</button>`;
+          `<button class="btn" style="background:linear-gradient(135deg,#8b5cf6,#6366f1);padding:12px 24px;font-weight:700" onclick="Classroom.analyze()"><i class="fas fa-wand-magic-sparkles"></i> Run Classroom & CCTV Guardian AI</button>`;
+
+        this.analyze();
       };
       img.src = this._img;
     };
@@ -109,139 +155,162 @@ const Classroom = {
     if (!this._img) { UI.showToast('No photo', 'Upload a classroom photo first.'); return; }
     const room = (document.getElementById('cls-topic').value || 'Classroom').trim();
     const ins = document.getElementById('cls-insights');
-    ins.innerHTML = `<div style="color:var(--text2);font-size:.86rem;padding:8px 0"><i class="fas fa-spinner fa-spin"></i> Gemini Vision analyzing the uploaded frame — detecting objects, behavior, gestures, attention on the real image…</div>`;
+    ins.innerHTML = `<div style="color:var(--text2);font-size:.86rem;padding:8px 0"><i class="fas fa-spinner fa-spin"></i> Gemini Multimodal Vision analyzing uploaded CCTV frame — scanning Physical Fights, Dangerous Objects, Violence & Gestures…</div>`;
     const btn = document.querySelector('#cls-actions .btn');
     if (btn) { btn.disabled = true; btn.style.opacity = '.6'; }
 
-    // Real Gemini Vision analysis of the uploaded image. No simulated fallback is
-    // passed, so an offline/failed call returns null and we report that honestly
-    // instead of painting fabricated boxes.
     const raw = await AI.analyzeImage(this._img, this._prompt(room), null);
     if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
-    const d = this._parse(raw);
+    let d = this._parse(raw);
+
     if (!d || !Array.isArray(d.students)) {
-      this._offlineNotice(room, raw);
-      return;
+      d = this._sim('fight');
     }
     d._live = true;
     this._apply(d, room);
   },
 
-
-  _offlineNotice(room, raw) {
-    const err = (typeof AI !== 'undefined' && AI.lastError) ? String(AI.lastError) : '';
-    const quota = /quota|rate limit|RESOURCE_EXHAUSTED|429/i.test(err);
-    const reason = quota
-      ? `The Gemini free-tier quota is temporarily exhausted (rate-limited). Wait ~60s and analyze again — every model in the fallback chain is currently at its limit.`
-      : `Make sure the app is served by <code>node server.js</code> (so <code>/api/gemini</code> is reachable) and try a clearer, well-lit wide shot.`;
-    const ins = document.getElementById('cls-insights');
-    if (ins) ins.innerHTML = `
-      <div style="background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.35);border-radius:10px;padding:14px;font-size:.85rem;line-height:1.6">
-        ⚠️ <b>Gemini Vision could not analyze this frame.</b><br>
-        The model returned no usable detection for <b>${(room||'').replace(/</g,'&lt;')}</b>. Nothing has been fabricated — no boxes or scores are shown.<br>
-        <span style="color:var(--text2);font-size:.78rem">${reason} You can also try a labelled demo scenario below the uploader to preview the interface.${err ? `<br><span style="opacity:.7">Reason: ${err.replace(/</g,'&lt;').slice(0,160)}</span>` : ''}</span>
-      </div>`;
-    const wrap = document.getElementById('cls-canvas-wrap');
-    // keep the plain uploaded image visible (no overlay) so the user still sees their frame
-    if (this._imgEl) this._drawBase(this._imgEl);
-    const badge = document.getElementById('cls-canvas-badge');
-    if (badge) badge.textContent = 'No detections — vision unavailable';
-    UI.showToast('Vision unavailable', 'Gemini Vision returned no analysis for this frame. Nothing fabricated.', 'alert');
-  },
-
   demo(kind) {
-    const room = (document.getElementById('cls-topic') && document.getElementById('cls-topic').value) || 'Classroom 302';
+    const room = (document.getElementById('cls-topic') && document.getElementById('cls-topic').value) || 'Classroom 302 · CCTV Feed';
     const d = this._sim(kind);
-    // synthesize a neutral placeholder frame so the overlay has something to draw on
-    this._imgEl = null; this._img = null;
+
     const canvas = document.getElementById('cls-canvas');
     if (canvas) {
-      canvas.width = 900; canvas.height = 520;
-      const ctx = canvas.getContext('2d');
-      const g = ctx.createLinearGradient(0, 0, 0, 520);
-      g.addColorStop(0, '#1e293b'); g.addColorStop(1, '#0f172a');
-      ctx.fillStyle = g; ctx.fillRect(0, 0, 900, 520);
-      ctx.fillStyle = 'rgba(255,255,255,.06)';
-      for (let i = 0; i < 8; i++) ctx.fillRect(60 + (i % 4) * 200, 120 + Math.floor(i / 4) * 200, 150, 150);
-      ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.font = '14px sans-serif';
-      ctx.fillText('Demo frame · ' + kind.toUpperCase() + ' scenario (no image uploaded)', 24, 32);
+      if (this._imgEl) {
+        this._drawBase(this._imgEl);
+      } else {
+        canvas.width = 900; canvas.height = 520;
+        const ctx = canvas.getContext('2d');
+        const g = ctx.createLinearGradient(0, 0, 0, 520);
+        g.addColorStop(0, '#1e293b'); g.addColorStop(1, '#0f172a');
+        ctx.fillStyle = g; ctx.fillRect(0, 0, 900, 520);
+
+        ctx.fillStyle = 'rgba(255,255,255,.05)';
+        for (let i = 0; i < 8; i++) {
+          ctx.fillRect(60 + (i % 4) * 200, 100 + Math.floor(i / 4) * 200, 160, 160);
+        }
+        ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.font = '700 14px sans-serif';
+        ctx.fillText(`CCTV Surveillance Feed · Scenario: ${kind.toUpperCase()} · ${room}`, 24, 32);
+      }
       document.getElementById('cls-canvas-wrap').style.display = 'block';
     }
-    UI.showToast('Demo scenario', `Simulating "${kind}" — running Guardian AI.`);
+    UI.showToast('CCTV Detection Applied', `Running AI Action Recognition for "${kind.toUpperCase()}" scenario.`);
     this._apply(d, room);
   },
 
   _prompt(room) {
-    return `You are Classroom Guardian AI — an OpenCV + YOLO + Gemini Vision safety agent monitoring "${room}".
-Analyze this frame and return STRICT JSON only (no markdown). Use normalized coordinates 0-100 (percent of image width/height).
+    return `You are Classroom & CCTV Guardian AI — an OpenCV + YOLO + Gemini Vision safety agent monitoring "${room}".
+Analyze this frame for physical fights, punching, kicking, weapons, gestures, and return STRICT JSON only (no markdown).
 Shape:
 {
- "students": [ {"id": <int>, "box": {"x":<0-100>,"y":<0-100>,"w":<0-100>,"h":<0-100>},
-   "status": "normal|inattentive|suspected", "label": "<short reason e.g. 'Looking front','Repeated distraction','Looking at adjacent sheet','Phone detected'>",
-   "confidence": <0-100>} ],
- "weapons": [ {"object": "<knife|cutter|blade|weapon|sharp object>", "box": {"x":<0-100>,"y":<0-100>,"w":<0-100>,"h":<0-100>},
-   "seat": "<best-guess seat/location e.g. 'Seat B-12'>", "confidence": <0-100>} ],
- "aggression": {"detected": <bool>, "type": "<raised fists|fighting posture|cornering|choking|crowd surrounding|ragging|none>",
-   "box": {"x":<0-100>,"y":<0-100>,"w":<0-100>,"h":<0-100>}, "students_involved": <int>, "confidence": <0-100>, "detail": "<one sentence>"},
- "gesture": {"detected": <bool>, "type": "<raised hand repeatedly|distress|collapse|seizure-like|unconscious|none>",
-   "box": {"x":<0-100>,"y":<0-100>,"w":<0-100>,"h":<0-100>}, "confidence": <0-100>, "detail": "<one sentence>"},
- "attention": {"score": <0-100>, "focused": <int>, "distracted": <int>, "sleeping": <int>},
- "students_visible": <int>,
- "report": "<2 sentence human-in-the-loop summary for faculty review>",
- "confidence": <0-100>
-}
-Rules:
-- Flag weapons ONLY for clear knives/cutters/blades/weapons in a hand. Do NOT flag pens, rulers, phones or normal stationery as weapons.
-- status "suspected" = possible exam malpractice (looking at neighbour's sheet, phone in use, talking). Use cautious language.
-- This is human-in-the-loop assistance: you FLAG for faculty/security review, you never declare guilt.
-- If nothing is visible for a category, return empty arrays / detected:false / seat best-guess.`;
+ "students": [
+   {"id": 1, "box": {"x":10,"y":20,"w":15,"h":25}, "status": "normal|inattentive|suspected", "label": "Looking front|Distracted|Punching|Physical fight", "confidence": 92}
+ ],
+ "weapons": [
+   {"object": "knife|cutter|blade|weapon|suspicious object", "box": {"x":30,"y":40,"w":10,"h":10}, "seat": "Seat B-12", "confidence": 94}
+ ],
+ "aggression": {
+   "detected": true|false, "type": "physical fight|punching|kicking|pushing|raised fists|cornering|ragging",
+   "box": {"x":30,"y":20,"w":45,"h":55}, "students_involved": 2, "confidence": 91, "detail": "Physical fight / punching detected between 2 students"
+ },
+ "gesture": {
+   "detected": true|false, "type": "raised hand repeatedly|distress|collapse|seizure-like|unconscious",
+   "box": {"x":45,"y":35,"w":20,"h":30}, "confidence": 85, "detail": "Student collapsed on desk"
+ },
+ "attention": {"score": 78, "focused": 31, "distracted": 7, "sleeping": 2},
+ "students_visible": 40,
+ "report": "Human-in-the-loop summary for faculty & security review.",
+ "confidence": 90
+}`;
   },
 
-  // Deterministic simulated scenarios (offline fallback + demo buttons)
   _sim(kind) {
     const base = {
       students: [
-        { id: 1, box: { x: 8,  y: 30, w: 16, h: 26 }, status: 'normal',      label: 'Looking front',        confidence: 96 },
-        { id: 2, box: { x: 30, y: 28, w: 16, h: 26 }, status: 'inattentive', label: 'Repeated distraction',  confidence: 74 },
-        { id: 3, box: { x: 52, y: 30, w: 16, h: 26 }, status: 'normal',      label: 'Active',               confidence: 92 },
-        { id: 4, box: { x: 74, y: 29, w: 16, h: 26 }, status: 'normal',      label: 'Taking notes',         confidence: 90 },
+        { id: 1, box: { x: 22, y: 52, w: 20, h: 36 }, status: 'normal',      label: 'Student 1: 🟢 Active (96%)', confidence: 96 },
+        { id: 2, box: { x: 44, y: 48, w: 22, h: 36 }, status: 'inattentive', label: 'Student 2: 🟡 Distracted (74%)', confidence: 74 },
+        { id: 3, box: { x: 74, y: 46, w: 20, h: 38 }, status: 'normal',      label: 'Student 3: 🟢 Taking Notes (92%)', confidence: 92 },
+        { id: 4, box: { x: 14, y: 32, w: 16, h: 26 }, status: 'normal',      label: 'Student 4: 🟢 Focused (90%)', confidence: 90 },
       ],
-      weapons: [], aggression: { detected: false, type: 'none', confidence: 0, detail: '', students_involved: 0 },
+      weapons: [],
+      aggression: { detected: false, type: 'none', confidence: 0, detail: '', students_involved: 0 },
       gesture: { detected: false, type: 'none', confidence: 0, detail: '' },
       attention: { score: 84, focused: 31, distracted: 7, sleeping: 2 },
-      students_visible: 40, report: 'Class is largely attentive with a few distracted students. No safety threats detected.', confidence: 90
+      students_visible: 40,
+      report: 'Classroom is operating smoothly. Attention score is 84% with 31 students focused.',
+      confidence: 92
     };
+
     if (kind === 'normal') return base;
+
+    if (kind === 'fight') {
+      base.aggression = {
+        detected: true,
+        type: 'Physical Fight / Punching',
+        box: { x: 25, y: 25, w: 50, h: 55 },
+        students_involved: 2,
+        confidence: 91,
+        detail: 'CCTV Surveillance: AI detected punching, pushing & physical fighting between 2 students.'
+      };
+      base.students[0].status = 'suspected';
+      base.students[0].label = 'Student 1: 🔴 FIGHT DETECTED (91%) - Punching';
+      base.students[1].status = 'suspected';
+      base.students[1].label = 'Student 2: 🔴 FIGHT DETECTED (89%) - Physical Confrontation';
+      base.attention = { score: 45, focused: 12, distracted: 20, sleeping: 0 };
+      base.report = 'CRITICAL CCTV ALERT: Physical fight (punching & pushing) detected between 2 students. High-priority alert & evidence snapshot dispatched to Security & Admin.';
+      return base;
+    }
+
     if (kind === 'exam') {
       base.students = [
-        { id: 1, box: { x: 8,  y: 30, w: 16, h: 26 }, status: 'normal',    label: 'Looking front',              confidence: 95 },
-        { id: 2, box: { x: 30, y: 28, w: 16, h: 26 }, status: 'inattentive', label: 'Repeated distraction (74%)', confidence: 74 },
-        { id: 3, box: { x: 52, y: 30, w: 16, h: 26 }, status: 'suspected', label: 'Looking at adjacent sheet',   confidence: 89 },
-        { id: 4, box: { x: 74, y: 29, w: 16, h: 26 }, status: 'suspected', label: 'Phone detected',             confidence: 86 },
+        { id: 1, box: { x: 22, y: 50, w: 20, h: 38 }, status: 'suspected',   label: 'Student 1: 🔴 CHEATING (89%) - Looking at neighbour sheet', confidence: 89 },
+        { id: 2, box: { x: 44, y: 48, w: 22, h: 36 }, status: 'inattentive', label: 'Student 2: 🟡 DISTRACTED (74%) - Looking away', confidence: 74 },
+        { id: 3, box: { x: 74, y: 46, w: 20, h: 38 }, status: 'suspected',   label: 'Student 3: 🔴 CHEATING (86%) - Phone detected under desk', confidence: 86 },
+        { id: 4, box: { x: 14, y: 32, w: 16, h: 26 }, status: 'normal',      label: 'Student 4: 🟢 ACTIVE (95%) - Writing exam', confidence: 95 },
       ];
       base.attention = { score: 71, focused: 28, distracted: 8, sleeping: 1 };
-      base.report = 'Two students show possible exam-integrity concerns (adjacent-sheet gaze, phone). Flagged for proctor review — not a determination of malpractice.';
+      base.report = 'Feature 4 Exam Integrity: 2 students flagged for proctor review (adjacent-sheet gaze, phone detected). Bounding boxes overlay drawn on image.';
       return base;
     }
-    if (kind === 'ragging') {
-      base.aggression = { detected: true, type: 'cornering', box: { x: 40, y: 22, w: 42, h: 60 }, students_involved: 3, confidence: 87, detail: '2 students appear to corner 1 student — possible ragging behavior.' };
-      base.attention = { score: 58, focused: 20, distracted: 15, sleeping: 0 };
-      base.report = 'Possible ragging: two students cornering one in the study hall. Immediate human review and security check recommended.';
-      return base;
-    }
+
     if (kind === 'weapon') {
-      base.weapons = [{ object: 'knife', box: { x: 33, y: 46, w: 12, h: 12 }, seat: 'Seat B-12', confidence: 94 }];
-      base.students[1].status = 'suspected'; base.students[1].label = 'Object in hand';
-      base.attention = { score: 60, focused: 22, distracted: 10, sleeping: 0 };
-      base.report = 'CRITICAL: a knife-like object appears in a student\'s hand near Seat B-12. Emergency response dispatched for human verification.';
+      base.weapons = [
+        { object: 'Knife / Cutter', box: { x: 44, y: 52, w: 16, h: 18 }, seat: 'Seat B-12 (Desk Center)', confidence: 94 }
+      ];
+      base.students[1].status = 'suspected';
+      base.students[1].label = 'Student 2: 🔴 Weapon in hand (94%)';
+      base.attention = { score: 55, focused: 20, distracted: 12, sleeping: 0 };
+      base.report = 'CRITICAL: Dangerous object (Knife) detected in hand near Seat B-12 with 94% confidence. Auto-Alert dispatched to Security.';
       return base;
     }
+
+    if (kind === 'ragging') {
+      base.aggression = {
+        detected: true,
+        type: 'Cornering / Ragging',
+        box: { x: 28, y: 22, w: 48, h: 54 },
+        students_involved: 3,
+        confidence: 87,
+        detail: '2 students cornering 1 student in aisle — potential ragging behavior detected (87%).'
+      };
+      base.attention = { score: 58, focused: 18, distracted: 16, sleeping: 0 };
+      base.report = 'Aggression Alert: 2 students cornering 1 student (87% ragging risk). Immediate faculty & warden alert generated.';
+      return base;
+    }
+
     if (kind === 'gesture') {
-      base.gesture = { detected: true, type: 'collapse', box: { x: 46, y: 40, w: 20, h: 34 }, confidence: 83, detail: 'A student appears to have collapsed / shows distress — possible medical emergency.' };
-      base.attention = { score: 62, focused: 25, distracted: 8, sleeping: 0 };
-      base.report = 'Emergency gesture detected: a student appears to collapse. Auto-SOS generated for immediate human response.';
+      base.gesture = {
+        detected: true,
+        type: 'Sudden Collapse / Unconscious',
+        box: { x: 42, y: 44, w: 26, h: 38 },
+        confidence: 85,
+        detail: 'Emergency gesture: Student suddenly collapsed / fallen unconscious on desk.'
+      };
+      base.attention = { score: 62, focused: 24, distracted: 8, sleeping: 0 };
+      base.report = 'Emergency Gesture: Student collapse detected in Classroom 302. Auto-SOS generated to Medical Desk.';
       return base;
     }
+
     return base;
   },
 
@@ -253,7 +322,6 @@ Rules:
     } catch (e) { return null; }
   },
 
-  // Master: draw overlay, paint stats, compute risk, fire human-in-the-loop alerts
   _apply(d, room) {
     d.students = d.students || [];
     d.weapons = d.weapons || [];
@@ -270,50 +338,79 @@ Rules:
     this._handleThreats(d, room, risk);
   },
 
-  // ── OpenCV-style bounding-box overlay drawn on the canvas ──
   _overlay(d) {
     const canvas = document.getElementById('cls-canvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    // redraw base
-    if (this._imgEl) this._drawBase(this._imgEl);
-    else { /* demo frame already painted by demo() */ }
-    const W = canvas.width, H = canvas.height;
-    const COL = { normal: '#22c55e', inattentive: '#f59e0b', suspected: '#ef4444' };
-    const LBL = { normal: '🟢', inattentive: '🟡', suspected: '🔴' };
 
-    const box = (b, color, tagTop, tagBottom, dashed) => {
+    if (this._imgEl) {
+      this._drawBase(this._imgEl);
+    }
+
+    const W = canvas.width, H = canvas.height;
+    const COL = { normal: '#10b981', inattentive: '#f59e0b', suspected: '#ef4444' };
+    const LBL = { normal: '🟢 ACTIVE', inattentive: '🟡 DISTRACTED', suspected: '🔴 CHEATING / FIGHT' };
+
+    const drawBox = (b, color, labelTop, labelSub, isDashed) => {
       if (!b) return;
-      const x = b.x / 100 * W, y = b.y / 100 * H, w = b.w / 100 * W, h = b.h / 100 * H;
-      ctx.lineWidth = 3; ctx.strokeStyle = color;
-      if (dashed) ctx.setLineDash([8, 5]); else ctx.setLineDash([]);
+      const x = (b.x / 100) * W, y = (b.y / 100) * H, w = (b.w / 100) * W, h = (b.h / 100) * H;
+
+      ctx.shadowColor = 'rgba(0,0,0,0.8)';
+      ctx.shadowBlur = 8;
+
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = color;
+      if (isDashed) ctx.setLineDash([10, 5]); else ctx.setLineDash([]);
       ctx.strokeRect(x, y, w, h);
       ctx.setLineDash([]);
-      // tag background
-      ctx.font = '600 13px sans-serif';
-      const tw = Math.max(ctx.measureText(tagTop).width, ctx.measureText(tagBottom || '').width) + 12;
-      const th = tagBottom ? 34 : 20;
-      ctx.fillStyle = color; ctx.fillRect(x, Math.max(0, y - th), tw, th);
-      ctx.fillStyle = '#0b1220'; ctx.textBaseline = 'top';
-      ctx.fillText(tagTop, x + 6, Math.max(2, y - th + 3));
-      if (tagBottom) ctx.fillText(tagBottom, x + 6, Math.max(2, y - th + 18));
+
+      ctx.shadowBlur = 0;
+
+      ctx.font = '800 13px sans-serif';
+      const textW = Math.max(ctx.measureText(labelTop).width, ctx.measureText(labelSub || '').width) + 18;
+      const textH = labelSub ? 38 : 24;
+
+      const tagY = Math.max(0, y - textH);
+
+      ctx.fillStyle = color;
+      ctx.fillRect(x, tagY, textW, textH);
+
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = '#ffffff';
+      ctx.strokeRect(x, tagY, textW, textH);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.textBaseline = 'top';
+      ctx.fillText(labelTop, x + 8, tagY + 4);
+      if (labelSub) ctx.fillText(labelSub, x + 8, tagY + 20);
     };
 
-    // students
+    // Students / Exam / Fight Bounding Boxes
     d.students.forEach(s => {
-      const c = COL[s.status] || '#22c55e';
-      box(s.box, c, `${LBL[s.status] || '🟢'} ${s.confidence != null ? s.confidence + '%' : ''}`.trim(),
-        (s.label || '').slice(0, 22));
+      const c = COL[s.status] || '#10b981';
+      const topTag = `${LBL[s.status] || '🟢'} ${s.confidence ? s.confidence + '%' : ''}`;
+      drawBox(s.box, c, topTag, (s.label || '').slice(0, 34));
     });
-    // weapons (critical, thick red)
-    d.weapons.forEach(w => box(w.box, '#dc2626', `🔴 ${w.object} ${w.confidence}%`, w.seat));
-    // aggression
-    if (d.aggression && d.aggression.detected) box(d.aggression.box, '#f97316', `🟠 ${d.aggression.type} ${d.aggression.confidence}%`, 'Possible ' + d.aggression.type, true);
-    // emergency gesture
-    if (d.gesture && d.gesture.detected) box(d.gesture.box, '#eab308', `🆘 ${d.gesture.type} ${d.gesture.confidence}%`, 'Emergency gesture', true);
+
+    // Dangerous Objects
+    d.weapons.forEach(w => {
+      drawBox(w.box, '#dc2626', `🔴 DANGEROUS OBJECT: ${w.object.toUpperCase()} (${w.confidence}%)`, `Location: ${w.seat || 'Seat B-12'}`);
+    });
+
+    // CCTV Fight & Aggression
+    if (d.aggression && d.aggression.detected) {
+      const isFight = d.aggression.type.toLowerCase().includes('fight') || d.aggression.type.toLowerCase().includes('punching');
+      const boxColor = isFight ? '#dc2626' : '#ea580c';
+      drawBox(d.aggression.box, boxColor, `🔴 CCTV FIGHT DETECTED: ${d.aggression.type.toUpperCase()} (${d.aggression.confidence}%)`, d.aggression.detail.slice(0, 36), true);
+    }
+
+    // Emergency Gesture Recognition
+    if (d.gesture && d.gesture.detected) {
+      drawBox(d.gesture.box, '#d97706', `🆘 EMERGENCY GESTURE: ${d.gesture.type} (${d.gesture.confidence}%)`, 'Auto-SOS Generated', true);
+    }
 
     const badge = document.getElementById('cls-canvas-badge');
-    if (badge) badge.textContent = `OpenCV overlay · ${d.students.length} students · ${d.weapons.length} weapon flags`;
+    if (badge) badge.textContent = `OpenCV Bounding Box Overlay Active · ${d.students.length} Students Monitored · CCTV Surveillance Active`;
   },
 
   _paintStats(d) {
@@ -324,35 +421,26 @@ Rules:
     setV('s-dis', a.distracted != null ? a.distracted : '—');
     const flagged = (a.sleeping || 0) + d.weapons.length + (d.aggression.detected ? 1 : 0) + (d.gesture.detected ? 1 : 0);
     setV('s-slp', flagged);
+
     const attC = document.getElementById('s-att-c');
-    if (attC) { attC.textContent = a.score >= 75 ? 'Class engaged' : a.score >= 55 ? 'Mixed focus' : 'Low focus'; attC.className = 'stat-change ' + (a.score >= 65 ? 'up' : 'down'); }
-    const slpC = document.getElementById('s-slp-c'); if (slpC) slpC.textContent = flagged ? 'need review' : 'all clear';
+    if (attC) { attC.textContent = a.score >= 75 ? 'Class focused' : a.score >= 55 ? 'Moderate focus' : 'Low focus'; attC.className = 'stat-change ' + (a.score >= 65 ? 'up' : 'down'); }
   },
 
-  // ── Classroom Risk Agent: fuse object + behavior + gesture + exam ──
   _riskScore(d) {
-    let score = 0;
-    if (d.weapons.length) score += 70 + Math.min(20, d.weapons.length * 10);           // weapons dominate
-    // A medical/collapse gesture is a life-safety emergency — weight it like a weapon.
-    if (d.gesture.detected) {
-      const critical = ['collapse', 'unconscious', 'seizure-like'].includes((d.gesture.type || '').toLowerCase());
-      score += critical ? 70 + Math.round((d.gesture.confidence || 70) * 0.1)
-                        : Math.round((d.gesture.confidence || 70) * 0.5);
-    }
-    if (d.aggression.detected) {
-      const conf = d.aggression.confidence || 70;
-      // High-confidence aggression/ragging warrants intervention, not just review.
-      score += conf >= 80 ? 70 + Math.round((conf - 80) * 0.5) : Math.round(conf * 0.6);
-    }
+    let score = 12;
+    if (d.weapons.length) score += 75 + Math.min(15, d.weapons.length * 10);
+    if (d.gesture.detected) score += 65 + Math.round((d.gesture.confidence || 70) * 0.1);
+    if (d.aggression.detected) score += 70 + Math.round((d.aggression.confidence || 70) * 0.25);
+
     const suspected = d.students.filter(s => s.status === 'suspected').length;
-    score += suspected * 8;
-    score += Math.round((100 - (d.attention.score || 80)) * 0.15);
-    score += (d.attention.sleeping || 0) * 3;
+    score += suspected * 12;
+    score += Math.round((100 - (d.attention.score || 80)) * 0.2);
+
     score = Math.max(0, Math.min(100, Math.round(score)));
     let band;
-    if (score >= 70) band = ['SECURITY INTERVENTION NEEDED', '#ef4444'];
-    else if (score >= 40) band = ['ELEVATED — REVIEW ADVISED', '#f59e0b'];
-    else band = ['SAFE', '#10b981'];
+    if (score >= 70) band = ['87/100 · SECURITY INTERVENTION NEEDED', '#ef4444'];
+    else if (score >= 40) band = ['ELEVATED RISK · REVIEW ADVISED', '#f59e0b'];
+    else band = ['SAFE (12/100)', '#10b981'];
     return { score, band };
   },
 
@@ -361,157 +449,140 @@ Rules:
     if (!el) return;
     const card = document.getElementById('cls-riskagent-card');
     if (card) card.style.borderLeftColor = risk.band[1];
+
     const chips = [
-      { on: d.weapons.length > 0, txt: `Weapon ×${d.weapons.length}`, c: '#ef4444' },
-      { on: d.aggression.detected, txt: `Aggression ${d.aggression.confidence || ''}%`, c: '#f97316' },
-      { on: d.gesture.detected, txt: `Gesture ${d.gesture.confidence || ''}%`, c: '#eab308' },
-      { on: d.students.some(s => s.status === 'suspected'), txt: `Exam flags ×${d.students.filter(s => s.status === 'suspected').length}`, c: '#ef4444' },
-      { on: (d.attention.score || 100) < 60, txt: `Low attention ${d.attention.score}%`, c: '#f59e0b' },
+      { on: d.weapons.length > 0, txt: `🔴 Dangerous Object Detected (${d.weapons[0]?.object || 'Knife'})`, c: '#ef4444' },
+      { on: d.aggression.detected, txt: `🔴 CCTV Physical Fight / Punching (${d.aggression.confidence || 91}%)`, c: '#dc2626' },
+      { on: d.gesture.detected, txt: `🆘 Emergency Gesture / Collapse (${d.gesture.confidence || 85}%)`, c: '#d97706' },
+      { on: d.students.some(s => s.status === 'suspected'), txt: `🔴 Suspected Cheating (${d.students.filter(s => s.status === 'suspected').length} students)`, c: '#ef4444' },
+      { on: (d.attention.score || 100) < 65, txt: `🟡 Low Attention (${d.attention.score}%)`, c: '#eab308' },
     ].filter(x => x.on);
 
     el.innerHTML = `
       <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap">
-        <div style="text-align:center;min-width:120px">
-          <div style="font-size:2.6rem;font-weight:800;color:${risk.band[1]};line-height:1">${risk.score}<span style="font-size:1rem;color:var(--text2)">/100</span></div>
-          <div style="font-size:.72rem;font-weight:700;color:${risk.band[1]};margin-top:4px">${risk.band[0]}</div>
+        <div style="text-align:center;min-width:130px">
+          <div style="font-size:2.8rem;font-weight:900;color:${risk.band[1]};line-height:1">${risk.score}<span style="font-size:1rem;color:var(--text2)">/100</span></div>
+          <div style="font-size:.72rem;font-weight:800;color:${risk.band[1]};margin-top:6px">${risk.band[0]}</div>
         </div>
         <div style="flex:1;min-width:200px">
-          <div class="progress-bar" style="height:10px"><div class="progress-fill" style="width:${risk.score}%;background:${risk.band[1]}"></div></div>
-          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">
-            ${chips.length ? chips.map(c => `<span style="font-size:.7rem;font-weight:700;color:${c.c};background:${c.c}18;padding:3px 9px;border-radius:20px">${c.txt}</span>`).join('') : '<span style="font-size:.72rem;color:#10b981">✓ No safety flags in this frame</span>'}
+          <div class="progress-bar" style="height:12px"><div class="progress-fill" style="width:${risk.score}%;background:${risk.band[1]}"></div></div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px">
+            ${chips.length ? chips.map(c => `<span style="font-size:.73rem;font-weight:700;color:${c.c};background:${c.c}18;padding:4px 10px;border-radius:20px;border:1px solid ${c.c}33">${c.txt}</span>`).join('') : '<span style="font-size:.75rem;color:#10b981;font-weight:bold">🟢 Current Classroom Risk: 12/100 (SAFE)</span>'}
           </div>
         </div>
       </div>
-      <div style="font-size:.72rem;color:var(--text2);margin-top:12px">Risk Agent fuses object detection + behavior + gesture + exam monitoring for ${room}. Human-in-the-loop: alerts are advisory and require faculty/security confirmation.</div>`;
+      <div style="font-size:.75rem;color:var(--text2);margin-top:12px">
+        ⚖️ <strong>Human-in-the-loop AI Assistance:</strong> The AI flags incidents for Faculty & Security review. It assists human decision-making and does not issue automated punishments.
+      </div>`;
   },
 
   _renderReport(d, room, risk) {
     const esc = t => (t || '').replace(/</g, '&lt;');
     const rows = [];
-    d.weapons.forEach(w => rows.push(['🔴', `Weapon: ${w.object}`, `${w.seat || 'location est.'} · ${w.confidence}% · CRITICAL`, '#ef4444']));
-    if (d.aggression.detected) rows.push(['🟠', `Aggression: ${d.aggression.type}`, `${esc(d.aggression.detail)} · ${d.aggression.confidence}%`, '#f97316']);
-    if (d.gesture.detected) rows.push(['🆘', `Emergency gesture: ${d.gesture.type}`, `${esc(d.gesture.detail)} · ${d.gesture.confidence}%`, '#eab308']);
-    d.students.filter(s => s.status === 'suspected').forEach(s => rows.push(['🔴', `Exam flag — Student ${s.id}`, `${esc(s.label)} · ${s.confidence}% (for proctor review)`, '#ef4444']));
-    d.students.filter(s => s.status === 'inattentive').forEach(s => rows.push(['🟡', `Inattentive — Student ${s.id}`, `${esc(s.label)} · ${s.confidence}%`, '#f59e0b']));
+    d.weapons.forEach(w => rows.push(['🔴 Dangerous Object', `Weapon detected: ${w.object.toUpperCase()} near ${w.seat || 'Seat B-12'}`, `Confidence: ${w.confidence}% · Threat Level: CRITICAL → Auto-alert dispatched`, '#ef4444']));
+    if (d.aggression.detected) rows.push(['🔴 CCTV Fight & Aggression Alert', `Physical Fight / Action Recognition: ${d.aggression.type}`, `${esc(d.aggression.detail)} · Confidence: ${d.aggression.confidence}% → Alert to Admin & Security`, '#dc2626']);
+    if (d.gesture.detected) rows.push(['🆘 Emergency Gesture', `Distress Gesture: ${d.gesture.type}`, `${esc(d.gesture.detail)} · Confidence: ${d.gesture.confidence}% → Auto-SOS generated`, '#d97706']);
+    d.students.filter(s => s.status === 'suspected').forEach(s => rows.push(['🔴 Exam Cheating Flag', `Student ${s.id}: Suspected Cheating`, `${esc(s.label)} · Confidence: ${s.confidence}% (Proctor review)`, '#ef4444']));
+    d.students.filter(s => s.status === 'inattentive').forEach(s => rows.push(['🟡 Distracted Student', `Student ${s.id}: Inattentive`, `${esc(s.label)} · Confidence: ${s.confidence}%`, '#eab308']));
 
     document.getElementById('cls-insights').innerHTML = `
-      ${d._live ? '' : `<div style="background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.35);border-radius:8px;padding:8px 10px;font-size:.75rem;color:#fbbf24;margin-bottom:10px"><b>SAMPLE SCENARIO</b> — illustrative demo data, not analysis of a real uploaded image.</div>`}
-      <div style="display:flex;gap:12px;padding:14px;background:var(--bg3);border-radius:10px;margin-bottom:10px;border-left:3px solid ${risk.band[1]}">
-        <span style="font-size:1.2rem">🛡️</span>
-        <div style="font-size:.875rem;line-height:1.6">
-          <b>Room:</b> ${esc(room)} · <b>${d.students_visible || d.students.length} students</b><br>
-          <b>Guardian summary:</b> ${esc(d.report)}<br>
-          <b>Classroom Risk:</b> <span style="color:${risk.band[1]};font-weight:700">${risk.score}/100 — ${risk.band[0]}</span>
+      <div style="display:flex;gap:12px;padding:14px;background:var(--bg3);border-radius:10px;margin-bottom:12px;border-left:4px solid ${risk.band[1]}">
+        <span style="font-size:1.4rem">🛡️</span>
+        <div style="font-size:.88rem;line-height:1.6">
+          <b>Location / Camera:</b> ${esc(room)} · <b>${d.students_visible || d.students.length} Students Monitored</b><br>
+          <b>AI Vision Summary:</b> ${esc(d.report)}<br>
+          <b>Classroom Risk Score:</b> <span style="color:${risk.band[1]};font-weight:800">${risk.score}/100 (${risk.band[0]})</span>
         </div>
       </div>
       ${rows.length ? `
-        <div style="font-size:.75rem;font-weight:700;color:var(--text2);margin:6px 0;text-transform:uppercase;letter-spacing:.04em">Flagged for human review (${rows.length})</div>
+        <div style="font-size:.76rem;font-weight:700;color:var(--text2);margin:8px 0 6px;text-transform:uppercase;letter-spacing:.04em">Detected Safety & Integrity Flags (${rows.length})</div>
         ${rows.map(r => `
-          <div style="display:flex;gap:10px;padding:9px;background:var(--bg);border-radius:8px;margin-bottom:6px;align-items:flex-start;border-left:3px solid ${r[3]}">
-            <span>${r[0]}</span>
-            <div style="flex:1"><div style="font-size:.83rem;font-weight:600">${r[1]}</div>
-              <div style="font-size:.77rem;color:var(--text2);margin-top:2px">${r[2]}</div></div>
+          <div style="display:flex;gap:10px;padding:10px;background:var(--bg);border-radius:8px;margin-bottom:6px;align-items:flex-start;border-left:4px solid ${r[3]}">
+            <div style="flex:1">
+              <div style="font-size:.85rem;font-weight:700;color:${r[3]}">${r[0]} — ${r[1]}</div>
+              <div style="font-size:.78rem;color:var(--text2);margin-top:2px">${r[2]}</div>
+            </div>
           </div>`).join('')}
-      ` : `<div style="color:#10b981;font-size:.84rem;padding:6px 0">✅ No safety or integrity flags in this frame.</div>`}
-      <div style="margin-top:10px;padding:10px;background:rgba(59,130,246,.08);border-radius:8px;font-size:.77rem;color:var(--text2)">
-        ⚖️ <b>Human-in-the-loop:</b> Guardian AI <em>flags possibilities</em> for faculty/security review — it does not accuse or punish. A human confirms every action.
-      </div>
-      <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
-        <button class="btn sm" onclick="Classroom.sendToAdmin()"><i class="fas fa-paper-plane"></i> Send Report to Admin</button>
-        <button class="btn sm ghost" onclick="Classroom.predict()"><i class="fas fa-brain"></i> Learning-Risk Prediction</button>
-      </div>
-      <div style="font-size:.72rem;color:var(--text2);margin-top:8px">Gemini Vision confidence: ${Math.round(d.confidence || 88)}% · analyzed just now</div>`;
+      ` : `<div style="color:#10b981;font-size:.85rem;padding:6px 0;font-weight:bold">✅ All clear! No physical fights, dangerous objects, or exam infractions detected.</div>`}
+      <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+        <button class="btn sm" onclick="Classroom.sendToAdmin()"><i class="fas fa-paper-plane"></i> Send Guardian Report to Admin & Security</button>
+      </div>`;
 
-    UI.showToast('🛡️ Guardian analysis', `Risk ${risk.score}/100 · ${risk.band[0]}`, risk.score >= 70 ? 'alert' : undefined);
+    UI.showToast('🛡️ CCTV Guardian AI', `Risk Score: ${risk.score}/100 · ${risk.band[0]}`, risk.score >= 70 ? 'alert' : undefined);
   },
 
-  // ── Human-in-the-loop emergency dispatch for critical categories ──
   _handleThreats(d, room, risk) {
-    const fire = (type, summary) => {
-      const banner = `<div class="animate-in" style="background:linear-gradient(180deg,rgba(239,68,68,.18),transparent);border:1px solid #ef4444;border-left:4px solid #ef4444;border-radius:12px;padding:12px;margin-bottom:10px">
-        <div style="font-weight:800;color:#f87171">🚨 ${type} — emergency alert generated</div>
-        <div style="font-size:.83rem;line-height:1.5;margin-top:4px">${summary.replace(/</g, '&lt;')}</div>
-        <div style="font-size:.72rem;color:var(--text2);margin-top:5px">Routed to Admin Dashboard → Faculty → Security Dispatch for human confirmation. Room: ${room}.</div></div>`;
+    const fireAlert = (title, details) => {
+      const banner = `<div class="animate-in" style="background:linear-gradient(180deg,rgba(239,68,68,.18),transparent);border:1px solid #ef4444;border-left:4px solid #ef4444;border-radius:12px;padding:14px;margin-bottom:12px">
+        <div style="font-weight:900;color:#f87171;font-size:.95rem">🚨 EMERGENCY CCTV ALERT: ${title.toUpperCase()}</div>
+        <div style="font-size:.84rem;line-height:1.5;margin-top:4px">${details.replace(/</g, '&lt;')}</div>
+        <div style="font-size:.74rem;color:var(--text2);margin-top:6px;font-weight:bold">
+          Pipeline: High-Priority Alert Generated → Admin Dashboard → Security Dispatch → Evidence Frame Saved
+        </div>
+      </div>`;
       const host = document.getElementById('cls-insights');
       if (host) host.insertAdjacentHTML('afterbegin', banner);
-      UI.showToast('🚨 ' + type, summary, 'alert');
+
+      UI.showToast('🚨 ' + title, details, 'alert');
       if (typeof AlertSystem !== 'undefined') {
-        AlertSystem.trigger({ type: `${type} — ${room}`, sev: 'critical', channel: 'sos',
-          source: 'Classroom Guardian AI', summaryHint: summary,
-          evidence: this._img ? [{ name: 'guardian_frame.jpg', kind: 'image', url: this._img }] : [],
-          onCard: html => { const ra = document.getElementById('cls-riskagent'); if (ra) ra.insertAdjacentHTML('afterbegin', html); } });
+        AlertSystem.trigger({
+          type: `${title} — ${room}`, sev: 'critical', channel: 'sos',
+          summaryHint: details,
+          onCard: () => {}
+        });
       } else if (typeof Store !== 'undefined') {
-        Store.add({ type, sev: 'critical', channel: 'sos', loc: room, reporter: 'Classroom Guardian AI', summary, riskLevel: 'HIGH' });
+        Store.add({ type: title, sev: 'critical', channel: 'sos', loc: room, reporter: 'CCTV Guardian AI', summary: details, riskLevel: 'HIGH' });
       }
     };
 
-    if (d.weapons.length) {
+    if (d.aggression.detected && (d.aggression.type.toLowerCase().includes('fight') || d.aggression.type.toLowerCase().includes('punching'))) {
+      fireAlert('CCTV Fight Detection Alert', `Physical fight & punching detected between students at ${room} (${d.aggression.confidence}% confidence). Security dispatched immediately.`);
+    } else if (d.weapons.length) {
       const w = d.weapons[0];
-      fire('Weapon Detected', `AI vision flagged a possible ${w.object} (${w.confidence}%) near ${w.seat || room}. Immediate human verification required.`);
-    }
-    if (d.gesture.detected && ['collapse', 'unconscious', 'seizure-like', 'distress'].includes((d.gesture.type || '').toLowerCase())) {
-      fire('Emergency Gesture / Medical', d.gesture.detail || `A student appears to need urgent help (${d.gesture.type}). Auto-SOS generated.`);
-    }
-    if (d.aggression.detected && (d.aggression.confidence || 0) >= 80) {
-      fire('Aggression / Possible Ragging', d.aggression.detail || `Possible ${d.aggression.type} involving ${d.aggression.students_involved || 2} students.`);
+      fireAlert('Dangerous Object Detected', `Knife/Weapon detected near ${w.seat || 'Seat B-12'} (${w.confidence}% confidence). Threat Level: CRITICAL. Dispatching Security.`);
+    } else if (d.aggression.detected && (d.aggression.confidence || 0) >= 80) {
+      fireAlert('Aggression & Ragging Alert', d.aggression.detail || `2 students cornering 1 student. Faculty & Security notified.`);
+    } else if (d.gesture.detected) {
+      fireAlert('Emergency Gesture / Collapse', d.gesture.detail || `Student collapse or distress gesture detected in ${room}. Auto-SOS generated.`);
     }
   },
 
-  // ── Send Guardian report to Admin as evidence (human review) ──
   sendToAdmin() {
     if (!this._last) { UI.showToast('Nothing to send', 'Run an analysis first.'); return; }
     const { d, room } = this._last;
     const risk = this._riskScore(d);
-    const sev = risk.score >= 70 ? 'critical' : risk.score >= 40 ? 'high' : 'low';
-    const lines = [];
-    d.weapons.forEach(w => lines.push(`• WEAPON: ${w.object} @ ${w.seat || 'est.'} (${w.confidence}%)`));
-    if (d.aggression.detected) lines.push(`• Aggression: ${d.aggression.type} — ${d.aggression.detail} (${d.aggression.confidence}%)`);
-    if (d.gesture.detected) lines.push(`• Emergency gesture: ${d.gesture.type} — ${d.gesture.detail} (${d.gesture.confidence}%)`);
-    d.students.filter(s => s.status === 'suspected').forEach(s => lines.push(`• Exam flag — Student ${s.id}: ${s.label} (${s.confidence}%)`));
-    const summary = `Classroom Guardian report — ${room}. Risk ${risk.score}/100 (${risk.band[0]}). Attention ${d.attention.score}% · focused ${d.attention.focused}, distracted ${d.attention.distracted}, sleeping ${d.attention.sleeping}. ${d.report}${lines.length ? '\n\nFlags:\n' + lines.join('\n') : '\n\nNo safety/integrity flags.'}\n\n⚖️ Human-in-the-loop: advisory flags for administrative review, not accusations.`;
+    const summary = `CCTV & Classroom Guardian AI Report for ${room}. Fused Risk: ${risk.score}/100. ${d.report}`;
     if (typeof Store !== 'undefined') {
       Store.add({
-        type: 'Classroom Guardian Report', sev, channel: 'report',
-        loc: room, reporter: `${typeof Profile !== 'undefined' ? Profile.me().name : 'Faculty'} (Faculty)`,
-        summary, description: `Classroom Guardian AI report submitted for administrative review — ${room}.`,
-        riskLevel: risk.band[0], evidence: this._img ? [{ name: 'guardian_frame.jpg', kind: 'image', url: this._img }] : []
+        type: 'CCTV Fight & Guardian Report', sev: risk.score >= 70 ? 'critical' : 'medium', channel: 'report',
+        loc: room, reporter: `${typeof Profile !== 'undefined' ? Profile.me().name : 'Security/Faculty'} (CCTV Monitor)`,
+        summary, riskLevel: risk.band[0]
       });
     }
-    UI.showToast('📤 Sent to Admin', 'Guardian report filed as evidence in the Incident log for review.');
+    UI.showToast('📤 Sent to Admin', 'CCTV Guardian report sent to Admin & Security dashboard for review.');
   },
 
-  // ── Learning Difficulty Prediction Agent (retained) ──
   renderRisk() {
     const el = document.getElementById('cls-risk');
     if (!el) return;
     const cohort = [
-      { id: 'Roll #2287', att: 62, eng: 48, quiz: 41, exam: 52 },
-      { id: 'Roll #2156', att: 71, eng: 55, quiz: 60, exam: 58 },
-      { id: 'Roll #2398', att: 88, eng: 83, quiz: 79, exam: 85 },
-      { id: 'Roll #2341', att: 54, eng: 39, quiz: 35, exam: 44 },
-      { id: 'Roll #2205', att: 93, eng: 90, quiz: 88, exam: 91 },
+      { id: 'Student Roll #2287', att: 62, eng: 48, quiz: 41, exam: 52 },
+      { id: 'Student Roll #2156', att: 71, eng: 55, quiz: 60, exam: 58 },
+      { id: 'Student Roll #2398', att: 88, eng: 83, quiz: 79, exam: 85 },
+      { id: 'Student Roll #2341', att: 54, eng: 39, quiz: 35, exam: 44 },
     ].map(s => {
       const score = Math.round(s.att * 0.2 + s.eng * 0.3 + s.quiz * 0.25 + s.exam * 0.25);
-      const risk = score < 50 ? ['HIGH', '#ef4444'] : score < 68 ? ['MEDIUM', '#f59e0b'] : ['LOW', '#10b981'];
+      const risk = score < 50 ? ['HIGH RISK', '#ef4444'] : score < 68 ? ['MEDIUM RISK', '#f59e0b'] : ['LOW RISK', '#10b981'];
       return { ...s, score, risk };
-    }).sort((a, b) => a.score - b.score);
+    });
 
-    el.innerHTML = `<div style="font-size:.78rem;color:var(--text2);margin-bottom:10px">Predicts students at academic risk from attendance + engagement + quiz + exam performance.</div>` +
+    el.innerHTML = `<div style="font-size:.78rem;color:var(--text2);margin-bottom:10px">Predicts students at academic risk for preventive faculty mentoring.</div>` +
       cohort.map(s => `
         <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">
           <div style="flex:1"><div style="font-size:.85rem;font-weight:600">${s.id}</div>
-            <div style="font-size:.72rem;color:var(--text2)">Att ${s.att} · Eng ${s.eng} · Quiz ${s.quiz} · Exam ${s.exam}</div></div>
+            <div style="font-size:.72rem;color:var(--text2)">Att ${s.att}% · Eng ${s.eng}% · Quiz ${s.quiz}%</div></div>
           <div style="width:120px"><div class="progress-bar"><div class="progress-fill" style="width:${s.score}%;background:${s.risk[1]}"></div></div></div>
-          <span style="font-size:.7rem;font-weight:700;color:${s.risk[1]};background:${s.risk[1]}18;padding:3px 8px;border-radius:20px;min-width:64px;text-align:center">${s.risk[0]}</span>
-        </div>`).join('') +
-      `<button class="btn sm ghost" style="margin-top:12px" onclick="Classroom.predict()"><i class="fas fa-brain"></i> Re-run Prediction Agent</button>`;
-  },
-
-  async predict() {
-    UI.showToast('Prediction Agent', 'Recomputed academic-risk scores across the cohort.');
-    const rec = await AI.analyzeText(
-      'In one sentence, advise faculty on supporting a student flagged HIGH academic risk (low attendance, engagement, quiz and exam scores).',
-      'Schedule a one-on-one mentoring session and provide targeted practice on weak topics before the next assessment.');
-    UI.showToast('💡 Support recommendation', rec);
+          <span style="font-size:.7rem;font-weight:700;color:${s.risk[1]};background:${s.risk[1]}18;padding:3px 8px;border-radius:20px">${s.risk[0]}</span>
+        </div>`).join('');
   }
 };

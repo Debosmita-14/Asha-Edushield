@@ -127,7 +127,7 @@ const App = {
     if (el) el.classList.add('active');
 
     const titles = {
-      dashboard: 'Dashboard', sos: 'SOS Emergency', report: 'Report Incident',
+      dashboard: 'Dashboard', sos: 'SOS Emergency', healthcare: 'Healthcare & Ambulance SOS', report: 'Report Incident',
       wellness: 'Wellness Chat', 'women-safety': 'Women Safety Agent',
       classroom: 'Classroom Guardian AI', exam: 'Exam Integrity',
       incidents: 'Incident Management', dispatch: 'Live Dispatch',
@@ -135,7 +135,7 @@ const App = {
       'safe-travel': 'Safe Travel Mode', map: 'Campus Map', profile: 'Profile & Contacts'
     };
     const icons = {
-      dashboard: 'fa-home', sos: 'fa-exclamation-circle', report: 'fa-flag',
+      dashboard: 'fa-home', sos: 'fa-exclamation-circle', healthcare: 'fa-hospital-user', report: 'fa-flag',
       wellness: 'fa-heart', 'women-safety': 'fa-venus',
       classroom: 'fa-shield-halved', exam: 'fa-user-shield',
       incidents: 'fa-list-alt', dispatch: 'fa-bolt', agents: 'fa-robot',
@@ -153,6 +153,7 @@ const App = {
     const pages = {
       dashboard: Pages.dashboard,
       sos: Pages.sos,
+      healthcare: Pages.healthcare,
       report: Pages.report,
       wellness: Pages.wellness,
       'women-safety': Pages.womenSafety,

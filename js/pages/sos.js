@@ -20,6 +20,7 @@ Pages.sos = function (el) {
     <div id="sos-pipeline" style="width:100%;max-width:540px;margin-top:24px"></div>
   </div>
   <div class="quick-grid">
+    <div class="quick-btn" id="qb-medical" onclick="SOS.quick('medical')" style="border:1px solid rgba(239,68,68,.4);background:rgba(239,68,68,.08)"><i class="fas fa-heart-pulse" style="color:#ef4444;font-size:1.4rem"></i><div class="qt" style="color:#f87171;font-weight:bold">Medical / Heart SOS</div></div>
     <div class="quick-btn" id="qb-escort" onclick="SOS.requestEscort()"><i class="fas fa-walking" style="color:#3b82f6"></i><div class="qt">Request Escort</div></div>
     <div class="quick-btn" id="qb-audio" onclick="SOS.toggleRecord()"><i class="fas fa-microphone" style="color:#ef4444"></i><div class="qt">Record Evidence</div></div>
     <div class="quick-btn" id="qb-location" onclick="SOS.shareLocation()"><i class="fas fa-map-pin" style="color:#10b981"></i><div class="qt">Share Location</div></div>
@@ -252,7 +253,9 @@ const SOS = {
   },
 
   quick(type) {
-    if (type === 'ragging' || type === 'harassment' || type === 'missing') {
+    if (type === 'medical') {
+      App.navigate('healthcare');
+    } else if (type === 'ragging' || type === 'harassment' || type === 'missing') {
       setTimeout(() => App.navigate('report'), 300);
     }
   }

@@ -258,5 +258,6 @@ Pages._adminDash = function (el) {
 };
 
 Pages._typeIcon = function (type) {
+  if (type && type.toLowerCase().includes('medical')) return 'fa-heart-pulse';
   return {'SOS':'fa-exclamation-circle','Ragging':'fa-user-slash','Mental Health':'fa-brain','Harassment':'fa-shield-alt','Bullying':'fa-fist-raised'}[type]||'fa-flag';
 };

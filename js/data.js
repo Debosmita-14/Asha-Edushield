@@ -6,6 +6,7 @@ const DATA = {
       nav:[
         {section:'Emergency'},
         {id:'sos',icon:'fa-exclamation-circle',label:'SOS Emergency'},
+        {id:'healthcare',icon:'fa-heart-pulse',label:'Healthcare & Ambulance'},
         {id:'women-safety',icon:'fa-venus',label:'Women Safety'},
         {id:'safe-travel',icon:'fa-route',label:'Safe Travel'},
         {section:'Report'},
@@ -28,6 +29,7 @@ const DATA = {
         {id:'classroom',icon:'fa-shield-halved',label:'Classroom Guardian'},
         {id:'exam',icon:'fa-user-shield',label:'Exam Integrity'},
         {section:'Safety'},
+        {id:'healthcare',icon:'fa-heart-pulse',label:'Healthcare & Ambulance'},
         {id:'incidents',icon:'fa-list-alt',label:'Incidents'},
         {id:'map',icon:'fa-map-marker-alt',label:'Campus Map'},
       ]
@@ -38,6 +40,7 @@ const DATA = {
         {section:'Operations'},
         {id:'dashboard',icon:'fa-home',label:'Dashboard'},
         {id:'dispatch',icon:'fa-bolt',label:'Live Dispatch'},
+        {id:'healthcare',icon:'fa-ambulance',label:'Ambulance & Healthcare'},
         {section:'Records'},
         {id:'incidents',icon:'fa-list-alt',label:'All Incidents'},
         {id:'map',icon:'fa-map-marker-alt',label:'Campus Map'},
@@ -48,6 +51,9 @@ const DATA = {
       nav:[
         {section:'Overview'},
         {id:'dashboard',icon:'fa-home',label:'Dashboard'},
+        {section:'Emergency Response'},
+        {id:'healthcare',icon:'fa-hospital-user',label:'Healthcare & Ambulance'},
+        {id:'dispatch',icon:'fa-bolt',label:'Live Dispatch Console'},
         {section:'Intelligence'},
         {id:'agents',icon:'fa-robot',label:'AI Agents'},
         {id:'analytics',icon:'fa-chart-bar',label:'Analytics'},
@@ -60,7 +66,14 @@ const DATA = {
     }
   },
 
+  ambulances: [
+    {id:'AMB-01',name:'Campus Cardiac Care Unit — Amb 1',driver:'Ramesh Kumar',phone:'+91 98765 43210',vehicleNo:'DL-01-AM-1008',status:'Available',station:'Main Health Center',equipment:'Defibrillator (AED), Cardiac Monitor, Oxygen, CPR Kit'},
+    {id:'AMB-02',name:'Emergency Rapid Response — Amb 2',driver:'Suresh Pal',phone:'+91 98765 12345',vehicleNo:'DL-01-AM-2024',status:'Available',station:'Sports Complex Gate',equipment:'Stretcher, Oxygen Cylinder, First Aid, Splints'},
+    {id:'AMB-03',name:'Hostel Zone Trauma Amb 3',driver:'Vikram Singh',phone:'+91 98765 99887',vehicleNo:'DL-01-AM-3099',status:'Dispatched',station:'Hostel Block 3 Base',equipment:'Defibrillator, Trauma Kit, Suction Unit'}
+  ],
+
   incidents: [
+    {id:'INC-4822',type:'Medical SOS: Heart Pain',loc:'Library Block B - 1st Floor',reporter:'Rohan V. (Student)',time:'1 min ago',sev:'critical',status:'Active',lat:28.6146,lng:77.2096},
     {id:'INC-4821',type:'SOS',loc:'Block B, Room 204',reporter:'Priya S.',time:'2 min ago',sev:'critical',status:'Active',lat:28.6145,lng:77.2095},
     {id:'INC-4820',type:'Ragging',loc:'Hostel 3 Corridor',reporter:'Anonymous',time:'14 min ago',sev:'high',status:'Investigating',lat:28.6132,lng:77.2085},
     {id:'INC-4819',type:'Mental Health',loc:'Library Zone',reporter:'Rahul M.',time:'31 min ago',sev:'medium',status:'Counselor Assigned',lat:28.6140,lng:77.2100},
@@ -85,6 +98,7 @@ const DATA = {
   ],
 
   agents: [
+    {name:'Campus Healthcare & Ambulance Agent',icon:'🏥',status:'active',tasks:14,desc:'Monitors medical SOS triggers (heart pain, trauma, collapse), auto-locates nearest campus ambulance, alerts Admin & Medical Desk',color:'#ef4444',inputs:'Medical SOS triggers, cardiac flags, GPS location, worker/student ID',outputs:'Ambulance dispatch, driver alert, admin notification, hospital pre-arrival alert'},
     {name:'Guardian Agent',icon:'🛡',status:'active',tasks:47,desc:'Central threat evaluator — scores every signal and routes to specialist agents',color:'#ef4444',inputs:'SOS events, GPS, hostel check-ins, zone violations',outputs:'Threat score 0–100, routing decision, escalation'},
     {name:'SOS Agent',icon:'🆘',status:'active',tasks:12,desc:'Handles SOS lifecycle from trigger to resolution with live tracking',color:'#f59e0b',inputs:'GPS, user ID, audio/video, device sensors',outputs:'Incident ticket, live tracking session, responder assignments'},
     {name:'Women Safety Agent',icon:'👩',status:'active',tasks:8,desc:'Monitors travel, detects route deviations, manages escort requests',color:'#ec4899',inputs:'Live GPS stream, safe travel mode, route plan',outputs:'Deviation alerts, escort dispatch, emergency escalation'},
@@ -115,3 +129,4 @@ const DATA = {
     default:["Thank you for sharing that with me. Can you tell me more about how long you've been feeling this way?","I'm here for you. Would talking it through, some coping strategies, or connecting with a counselor help most?","That sounds really difficult. You're doing the right thing by reaching out. How can I support you best today?","I want to make sure I understand — can you tell me a bit more about what's been happening?"]
   }
 };
+

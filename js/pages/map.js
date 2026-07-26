@@ -1,5 +1,5 @@
 // js/pages/map.js
-var Pages = Pages || {};
+Pages = Pages || {};
 
 Pages.map = function (el) {
   el.innerHTML = `
@@ -50,21 +50,22 @@ Pages.map = function (el) {
       <div id="map-route-result" style="margin-top:12px"></div>
     </div>
     <div class="card">
-      <div class="card-title">🏙 Tech Stack — Live Integrations</div>
+      <div class="card-title">📞 Campus Emergency Hotlines & Support Desk</div>
       ${[
-        {name:'MongoDB Atlas',icon:'🍃',status:'Connected',color:'#10b981',detail:'4,821 incident docs · 12,340 embeddings'},
-        {name:'DigitalOcean',icon:'🌊',status:'Running',color:'#0080ff',detail:'2 Droplets · App Platform · Spaces CDN'},
-        {name:'Solana',icon:'◎',status:'Active',color:'#9945ff',detail:'Evidence NFTs · Immutable audit trail'},
-        {name:'ElevenLabs',icon:'🔊',status:'Ready',color:'#f59e0b',detail:'Multilingual voice · 8 languages'},
-        {name:'Gemini API',icon:'✨',status:'Active',color:'#4285f4',detail:'Vision + Pro + Flash · 7,241 calls today'},
+        {name:'Campus Health Center & Ambulance SOS',icon:'🚑',phone:'+91 1800-HEAL-SOS',color:'#ef4444',detail:'24/7 Paramedic & Cardiac Ambulance'},
+        {name:'Security Control Room Desk',icon:'🛡️',phone:'+91 98765 43210 (Ext. 4001)',color:'#10b981',detail:'Main Gate & CCTV Command Center'},
+        {name:'Women Safety & Night Escort Service',icon:'👩',phone:'+91 98765 12345 (Ext. 4002)',color:'#ec4899',detail:'Safe Travel & Guard Accompaniment'},
+        {name:'Anti-Ragging Squad Helpline',icon:'🚫',phone:'+91 1800-ANTI-RAG (Ext. 4003)',color:'#8b5cf6',detail:'Anonymous Reporting & Emergency Action'},
+        {name:'Mental Health & Crisis Counselor',icon:'🧠',phone:'+91 91529 87821 (iCall)',color:'#3b82f6',detail:'Confidential Wellness Support'},
       ].map(t => `
         <div style="display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--border)">
-          <span style="font-size:1.2rem">${t.icon}</span>
+          <span style="font-size:1.3rem">${t.icon}</span>
           <div style="flex:1">
             <div style="font-size:.85rem;font-weight:600">${t.name}</div>
-            <div style="font-size:.72rem;color:var(--text2)">${t.detail}</div>
+            <div style="font-size:.72rem;color:${t.color};font-weight:700">${t.phone}</div>
+            <div style="font-size:.7rem;color:var(--text2)">${t.detail}</div>
           </div>
-          <span style="font-size:.7rem;font-weight:700;color:${t.color};background:${t.color}18;padding:3px 8px;border-radius:20px">${t.status}</span>
+          <a href="tel:${t.phone.split(' ')[0]}" class="btn sm ghost" style="font-size:.7rem;padding:3px 8px"><i class="fas fa-phone"></i> Call</a>
         </div>`).join('')}
     </div>
   </div>`;
