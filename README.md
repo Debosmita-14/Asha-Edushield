@@ -1,415 +1,77 @@
-# 🛡️ ASHA EduShield 2.0 – AI Campus Safety Operating System
+# 🛡 ASHA EduShield 2.0 — AI Campus Safety OS
 
-> An AI-powered multi-agent campus safety platform designed to provide real-time incident reporting, emergency response, women safety assistance, safe travel recommendations, wellness monitoring, analytics, and AI-driven decision support.
+An AI-powered campus-safety platform prototype: **15 AI agents** for real-time incident detection, emergency dispatch, women's safety, exam integrity, classroom monitoring, and wellness — with human-in-the-loop review.
 
----
+Built with vanilla **HTML / CSS / JavaScript** and a tiny dependency-free Node proxy server that keeps API keys off the client.
 
-## 📌 Overview
+## ✨ Features
 
-ASHA EduShield 2.0 is an intelligent Campus Safety Operating System that integrates AI agents, real-time maps, emergency response, voice assistance, analytics, and incident management into a single platform.
+- **Classroom Guardian** — Gemini Vision analyzes uploaded classroom photos for risk signals, with an OpenCV-style bounding-box overlay. Human-in-the-loop: the AI flags, a person decides.
+- **Advanced Exam Integrity** — Gemini Vision reviews exam-hall frames for integrity concerns and dangerous objects, generating a Suspicious Activity Report for a proctor. Weapons trigger an immediate emergency alert.
+- **Emergency Dispatch & Alert System** — multi-channel alert dispatch (email / SMS / WhatsApp) with escalation.
+- **Voice SOS + Walk With ASHA** — voice agent for students (ElevenLabs).
+- **Women's Safety, Wellness, Safe Travel, Analytics, Incidents, Map** and more.
+- **Role-based views** — Student, Faculty, Security, Admin.
 
-The system helps students, faculty, security personnel, administrators, and emergency responders communicate efficiently during emergencies while improving campus safety through AI-powered automation.
+> This is a hackathon/demo prototype. AI outputs are assistive and require human review; nothing is fabricated when a model is unavailable — the UI reports the failure honestly.
 
----
+## 🚀 Getting started
 
-# ✨ Key Features
+### 1. Prerequisites
+- [Node.js](https://nodejs.org) (any recent version — no npm packages required)
 
-### 🚨 Emergency Response
-- One-tap SOS
-- Emergency dispatch
-- Live incident reporting
-- AI-assisted emergency classification
-- Priority-based response
-
-### 👩 Women Safety
-- Women Safety Dashboard
-- Safe Route Suggestions
-- Emergency Contacts
-- Panic Button
-- Safety Tips
-- Nearby Safe Zones
-
-### 🤖 AI Assistant
-- Google Gemini AI Integration
-- Campus Safety Assistant
-- AI Incident Analysis
-- AI Recommendations
-- Question Answering
-
-### 🎙 Voice Assistant
-- ElevenLabs Voice Integration
-- Voice Commands
-- Text-to-Speech
-- Emergency Voice Interaction
-
-### 🗺 Maps & Navigation
-- Live Campus Map
-- Leaflet Map Integration
-- OpenStreetMap Tiles
-- Safe Route Navigation
-- Incident Location Tracking
-
-### 📊 Analytics Dashboard
-- Incident Statistics
-- Safety Analytics
-- Response Time Analysis
-- Department Performance
-- Risk Visualization
-
-### 📚 Additional Modules
-- Classroom Monitoring
-- Wellness Tracking
-- Safe Travel
-- Online Examination Safety
-- Agent Management
-- Reports Generation
-
----
-
-# 🏗 System Architecture
-
-```
-                    User
-                      │
-                      ▼
-              Frontend (HTML/CSS/JS)
-                      │
-          ┌───────────┴────────────┐
-          │                        │
-          ▼                        ▼
-   AI Assistant              Voice Assistant
- (Gemini API)              (ElevenLabs API)
-          │                        │
-          └───────────┬────────────┘
-                      ▼
-              Node.js Proxy Server
-                      │
-          ┌───────────┴────────────┐
-          ▼                        ▼
-      Gemini API             ElevenLabs API
-                      │
-                      ▼
-             Campus Safety Modules
-```
-
----
-
-# 🛠 Tech Stack
-
-## Frontend
-
-- HTML5
-- CSS3
-- JavaScript (ES6)
-
----
-
-## Backend
-
-- Node.js
-- HTTP Server
-- HTTPS Proxy
-
----
-
-## AI Services
-
-- Google Gemini API
-- ElevenLabs API
-
----
-
-## Maps
-
-- Leaflet.js
-- OpenStreetMap
-
----
-
-## Icons
-
-- Font Awesome
-
----
-
-# 📂 Project Structure
-
-```
-hexafalls/
-│
-├── index.html                 # Main Application
-├── server.js                  # Node.js API Proxy
-├── .env                       # API Keys
-├── css/
-│     └── style.css
-│
-├── js/
-│     ├── app.js
-│     ├── ai.js
-│     ├── agents.js
-│     ├── voiceagent.js
-│     ├── store.js
-│     ├── data.js
-│     │
-│     └── pages/
-│            ├── dashboard.js
-│            ├── incidents.js
-│            ├── dispatch.js
-│            ├── analytics.js
-│            ├── map.js
-│            ├── report.js
-│            ├── sos.js
-│            ├── wellness.js
-│            ├── womensafety.js
-│            ├── classroom.js
-│            ├── safetravel.js
-│            ├── exam.js
-│            └── agentspage.js
-```
-
----
-
-# 📄 Module Description
-
-## Dashboard
-Displays overall campus safety status, recent incidents, alerts, and analytics.
-
----
-
-## Incident Management
-- Create incidents
-- Track incidents
-- View incident details
-- Incident history
-
----
-
-## Dispatch Center
-Handles emergency response assignment and response tracking.
-
----
-
-## SOS Module
-Provides instant emergency reporting with location sharing.
-
----
-
-## Women Safety Module
-Includes dedicated features for women's security such as:
-
-- Emergency SOS
-- Safe Routes
-- Nearby Safe Locations
-- Safety Recommendations
-- Emergency Contacts
-
----
-
-## Wellness Module
-Tracks health and wellness related information for students.
-
----
-
-## Classroom Module
-Monitors classroom safety and classroom incidents.
-
----
-
-## Safe Travel
-Provides AI-generated safer travel recommendations.
-
----
-
-## Analytics
-Visualizes:
-
-- Incident trends
-- Response performance
-- Risk analysis
-- Safety statistics
-
----
-
-## Reports
-Generate reports of incidents and campus safety activities.
-
----
-
-## AI Agents
-Displays available AI agents responsible for different safety tasks.
-
----
-
-# 🤖 AI Integration
-
-## Google Gemini API
-
-Used for:
-
-- AI Chat Assistant
-- Incident Analysis
-- Risk Prediction
-- Safety Recommendations
-- Question Answering
-
----
-
-## ElevenLabs API
-
-Used for:
-
-- Voice Assistant
-- Speech Generation
-- Emergency Voice Alerts
-
----
-
-# 🗺 Maps Integration
-
-The application uses
-
-- Leaflet.js
-- OpenStreetMap
-
-Features include:
-
-- Campus Map
-- Incident Locations
-- Live Marker Updates
-- Route Visualization
-
----
-
-# 🔐 Environment Variables
-
-Create a `.env` file in the project root.
-
-```
-GEMINI_KEY=YOUR_GEMINI_API_KEY
-
-ELEVEN_KEY=YOUR_ELEVENLABS_API_KEY
-
-ELEVEN_VOICE=VOICE_ID
-```
-
----
-
-# 🚀 Installation
-
-## Clone Repository
+### 2. Configure API keys
+Copy the template and add your own keys:
 
 ```bash
-git clone https://github.com/yourusername/asha-edushield.git
+cp .env.example .env
 ```
 
----
+Then edit `.env`:
 
-## Go to Project
+| Key            | Purpose                        | Get one at |
+|----------------|--------------------------------|------------|
+| `GEMINI_KEY`   | Gemini Vision + text           | https://aistudio.google.com/apikey |
+| `ELEVEN_KEY`   | Voice agent (optional)         | https://elevenlabs.io |
+| `RESEND_KEY`   | Emergency email (optional)     | https://resend.com |
+| `TWILIO_*`     | SMS / WhatsApp alerts (optional)| https://twilio.com |
 
-```bash
-cd asha-edushield
-```
+The server reads keys **server-side only** — they are never exposed to the browser. Without a key, the relevant feature falls back to simulated output.
 
----
-
-## Add Environment Variables
-
-Create
-
-```
-.env
-```
-
-Add API keys.
-
----
-
-## Start Server
+### 3. Run
 
 ```bash
 node server.js
 ```
 
----
+Open **http://localhost:8080**, pick any role, and click **Enter Platform**.
 
-Open
+## 🏗 Architecture
 
 ```
-http://localhost:8080
+index.html          # single-page shell + login
+css/style.css       # all styling
+server.js           # dependency-free static server + /api/* proxy (hides keys)
+js/
+  app.js            # UI core, routing, role grid, live alerts
+  ai.js             # Gemini proxy client (Vision + text) with model fallback
+  agents.js         # the 15 AI agents registry
+  data.js           # demo/seed data + role config
+  store.js          # live event store → incidents
+  alertsystem.js    # multi-channel emergency dispatch + escalation
+  voiceagent.js     # voice SOS (ElevenLabs)
+  pages/            # one module per screen (classroom, exam, dispatch, …)
 ```
 
----
+### Gemini model fallback
+`ai.js` tries a chain of Gemini models (`gemini-flash-lite-latest` → fallbacks) and retries on quota (`429`) / availability (`404`/`503`) errors, so a single exhausted model doesn't break Vision.
 
-# 👥 Demo Login
+## 🔒 Security
 
-The application provides demo role-based login.
+- **Secrets live only in `.env`** (git-ignored) and are read server-side by `server.js`.
+- API keys are **never** committed or shipped to the client.
+- Use `.env.example` as the template; keep your real `.env` local.
 
-Example roles include:
+## 📝 License
 
-- Student
-- Faculty
-- Security Officer
-- Administrator
-
-No password is required in demo mode.
-
----
-
-# 📈 Future Improvements
-
-- Firebase Authentication
-- Real-time Database
-- Push Notifications
-- SMS Integration
-- WhatsApp Alerts
-- Face Recognition
-- CCTV AI Detection
-- Mobile Application
-- Multi-language Support
-- Predictive Crime Analytics
-
----
-
-# 🎯 Use Cases
-
-- College Campuses
-- Universities
-- Schools
-- Educational Institutions
-- Corporate Campuses
-- Smart Cities
-
----
-
-# 📸 Screens
-
-- Login Page
-- Dashboard
-- Incident Reporting
-- Women Safety
-- SOS
-- Dispatch Center
-- AI Assistant
-- Analytics
-- Reports
-- Campus Map
-
----
-
-# 📜 License
-
-This project is developed for educational and demonstration purposes.
-
----
-
-# 👨‍💻 Developed By
-
-**Kumaresh Pradhan**
-
-B.Tech CSE (AI & ML)
-
-Brainware University
-
----
-
-## ⭐ If you like this project, consider giving it a star!
+Prototype for educational / hackathon use.

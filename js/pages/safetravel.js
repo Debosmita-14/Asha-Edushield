@@ -45,9 +45,14 @@ Pages.safeTravel = function (el) {
         Say <strong>"Help me"</strong> or <strong>"मुझे मदद चाहिए"</strong> or <strong>"আমাকে সাহায্য করুন"</strong> to trigger voice SOS.<br>
         Voice is transcribed → classified by Gemini Flash → escalated if distress detected.
       </div>
-      <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:10px;margin-top:14px;flex-wrap:wrap">
+        <select id="voice-lang" class="filter-select" style="font-size:.78rem;padding:6px 10px">
+          <option value="en-IN">English (EN)</option>
+          <option value="hi-IN">हिन्दी (HI)</option>
+          <option value="bn-IN">বাংলা (BN)</option>
+        </select>
         <button class="btn sm" style="background:linear-gradient(135deg,#8b5cf6,#6366f1)" onclick="SafeTravel.voiceSOS()">
-          <i class="fas fa-microphone"></i> Voice SOS (Demo)
+          <i class="fas fa-microphone"></i> Voice SOS
         </button>
         <button class="btn sm ghost" onclick="SafeTravel.voiceAssist()">
           <i class="fas fa-volume-up"></i> Voice Assistant
@@ -199,25 +204,46 @@ const SafeTravel = {
   _recognition: null,
   _listening: false,
 
+  // Returns selected language code from the UI dropdown, defaulting to 'en-IN'
+  _lang() {
+    const el = document.getElementById('voice-lang');
+    return el ? el.value : 'en-IN';
+  },
+
+  // Distress keywords per language
+  _distressWords: {
+    'en-IN': ['help','emergency','unsafe','scared','danger','attack'],
+    'hi-IN': ['मदद','bachao','बचाओ','खतरा','डर','emergency','help'],
+    'bn-IN': ['সাহায্য','বাঁচাও','বিপদ','ভয়','emergency','help'],
+  },
+
   voiceSOS() {
+    const lang = this._lang();
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      UI.showToast('Voice SOS', 'Simulating: "Help me" → DISTRESS detected → Escalating...', 'alert');
+      UI.showToast('Voice SOS', 'Simulating: distress detected → Escalating...', 'alert');
       setTimeout(() => { UI.showToast('🚨 SOS Triggered', 'Voice classified as DISTRESS. Guard #3 notified.', 'alert'); SOS._activate && SOS._activate(); }, 1500);
       return;
     }
     const rec = new SpeechRecognition();
-    rec.lang = 'en-IN'; rec.interimResults = false; rec.maxAlternatives = 1;
-    UI.showToast('🎙 Listening...', 'Say "Help me" or "मुझे मदद चाहिए" now.', '');
+    rec.lang = lang; rec.interimResults = false; rec.maxAlternatives = 1;
+    const hint = lang === 'hi-IN' ? '"मुझे मदद चाहिए"' : lang === 'bn-IN' ? '"আমাকে সাহায্য করুন"' : '"Help me"';
+    UI.showToast('🎙 Listening...', `Say ${hint} now.`, '');
     rec.start();
     rec.onresult = (e) => {
       const transcript = e.results[0][0].transcript.toLowerCase();
-      const distressWords = ['help','मदद','সাহায্য','bachao','emergency','unsafe','scared','danger'];
-      const isDistress = distressWords.some(w => transcript.includes(w));
+      const words = (this._distressWords[lang] || this._distressWords['en-IN'])
+        .concat(this._distressWords['en-IN']); // always include English fallback
+      const isDistress = words.some(w => transcript.includes(w));
       if (isDistress) {
         UI.showToast('🚨 Distress Detected', `"${transcript}" → Escalating to SOS!`, 'alert');
         setTimeout(() => { if (typeof SOS !== 'undefined') SOS._activate(); }, 800);
-        this._speak('Emergency SOS activated. Help is on the way.');
+        const msg = lang === 'hi-IN'
+          ? 'आपातकालीन SOS सक्रिय। मदद आ रही है।'
+          : lang === 'bn-IN'
+          ? 'জরুরি SOS সক্রিয়। সাহায্য আসছে।'
+          : 'Emergency SOS activated. Help is on the way.';
+        AI.speak(msg, lang);
       } else {
         UI.showToast('🎙 Heard', `"${transcript}" — No distress detected.`, '');
       }
@@ -226,10 +252,16 @@ const SafeTravel = {
   },
 
   voiceAssist() {
+    const lang = this._lang();
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      UI.showToast('Voice Assistant', 'Say: "I feel unsafe walking from Hostel A to Library" — ASHA responds with safe route.', '');
-      setTimeout(() => this._speak('I have found a safe route for you. The well-lit path via Admin Block is recommended. Security has been notified.'), 500);
+      UI.showToast('Voice Assistant', 'Describe your safety concern — ASHA responds.', '');
+      const demo = lang === 'hi-IN'
+        ? 'मैं आपके लिए एक सुरक्षित रास्ता खोज रही हूँ। एडमिन ब्लॉक के रास्ते से जाएं।'
+        : lang === 'bn-IN'
+        ? 'আমি আপনার জন্য একটি নিরাপদ পথ খুঁজছি। অ্যাডমিন ব্লকের পথে যান।'
+        : 'I have found a safe route for you. The well-lit path via Admin Block is recommended. Security has been notified.';
+      setTimeout(() => AI.speak(demo, lang), 500);
       return;
     }
     if (this._listening) {
@@ -240,7 +272,7 @@ const SafeTravel = {
     }
     const rec = new SpeechRecognition();
     this._recognition = rec;
-    rec.lang = 'en-IN'; rec.interimResults = false; rec.continuous = false;
+    rec.lang = lang; rec.interimResults = false; rec.continuous = false;
     this._listening = true;
     UI.showToast('🎙 ASHA Listening...', 'Describe your safety concern.', '');
     rec.start();
@@ -250,17 +282,45 @@ const SafeTravel = {
       UI.showToast('🤖 ASHA Processing...', `"${q}"`, '');
       setTimeout(() => {
         const lower = q.toLowerCase();
-        let reply = 'I am here to help. Please describe your concern and I will assist you.';
-        if (lower.includes('unsafe') || lower.includes('scared') || lower.includes('follow')) {
-          reply = 'I understand you feel unsafe. I am alerting the nearest security guard and activating safe travel mode. Stay in a well-lit area.';
-          this.toggle && document.getElementById('travel-toggle') && this.toggle();
-        } else if (lower.includes('route') || lower.includes('walk') || lower.includes('hostel') || lower.includes('library')) {
-          reply = 'I found a safe route for you. Take the main road via Admin Block — it is well-lit and patrolled. Estimated 12 minutes walking.';
-        } else if (lower.includes('escort')) {
-          reply = 'Requesting a security escort for you now. A guard will meet you in 4 minutes.';
-          this.requestEscort();
+        let reply;
+        if (lang === 'hi-IN') {
+          if (lower.includes('असुरक्षित') || lower.includes('डर') || lower.includes('unsafe') || lower.includes('scared')) {
+            reply = 'मैं समझती हूँ आप असुरक्षित महसूस कर रहे हैं। मैं निकटतम सुरक्षा गार्ड को सतर्क कर रही हूँ।';
+            this.toggle && document.getElementById('travel-toggle') && this.toggle();
+          } else if (lower.includes('रास्ता') || lower.includes('route') || lower.includes('hostel')) {
+            reply = 'आपके लिए एक सुरक्षित रास्ता मिल गया। एडमिन ब्लॉक के रास्ते से जाएं — यह अच्छी तरह से रोशन और गश्त किया गया है।';
+          } else if (lower.includes('escort') || lower.includes('साथ')) {
+            reply = 'अभी आपके लिए सुरक्षा एस्कॉर्ट का अनुरोध किया जा रहा है।';
+            this.requestEscort();
+          } else {
+            reply = 'मैं यहाँ मदद के लिए हूँ। कृपया अपनी चिंता बताएं।';
+          }
+        } else if (lang === 'bn-IN') {
+          if (lower.includes('অনিরাপদ') || lower.includes('ভয়') || lower.includes('unsafe') || lower.includes('scared')) {
+            reply = 'আমি বুঝতে পারছি আপনি অনিরাপদ বোধ করছেন। আমি নিকটতম নিরাপত্তা রক্ষীকে সতর্ক করছি।';
+            this.toggle && document.getElementById('travel-toggle') && this.toggle();
+          } else if (lower.includes('রাস্তা') || lower.includes('route') || lower.includes('hostel')) {
+            reply = 'আপনার জন্য একটি নিরাপদ পথ পাওয়া গেছে। অ্যাডমিন ব্লকের পথে যান — এটি ভালোভাবে আলোকিত এবং টহলদার।';
+          } else if (lower.includes('escort') || lower.includes('সাথে')) {
+            reply = 'এখনই আপনার জন্য নিরাপত্তা এসকর্টের অনুরোধ করা হচ্ছে।';
+            this.requestEscort();
+          } else {
+            reply = 'আমি সাহায্য করতে এখানে আছি। আপনার উদ্বেগ বলুন।';
+          }
+        } else {
+          if (lower.includes('unsafe') || lower.includes('scared') || lower.includes('follow')) {
+            reply = 'I understand you feel unsafe. I am alerting the nearest security guard and activating safe travel mode. Stay in a well-lit area.';
+            this.toggle && document.getElementById('travel-toggle') && this.toggle();
+          } else if (lower.includes('route') || lower.includes('walk') || lower.includes('hostel') || lower.includes('library')) {
+            reply = 'I found a safe route for you. Take the main road via Admin Block — it is well-lit and patrolled. Estimated 12 minutes walking.';
+          } else if (lower.includes('escort')) {
+            reply = 'Requesting a security escort for you now. A guard will meet you in 4 minutes.';
+            this.requestEscort();
+          } else {
+            reply = 'I am here to help. Please describe your concern and I will assist you.';
+          }
         }
-        this._speak(reply);
+        AI.speak(reply, lang);
         UI.showToast('🔊 ASHA', reply.substring(0, 80) + '...', '');
       }, 600);
     };
@@ -269,13 +329,6 @@ const SafeTravel = {
   },
 
   _speak(text) {
-    if (!window.speechSynthesis) return;
-    window.speechSynthesis.cancel();
-    const utt = new SpeechSynthesisUtterance(text);
-    utt.lang = 'en-IN'; utt.rate = 0.95; utt.pitch = 1.05;
-    const voices = window.speechSynthesis.getVoices();
-    const female = voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('female'));
-    if (female) utt.voice = female;
-    window.speechSynthesis.speak(utt);
+    AI.speak(text, this._lang());
   }
 };

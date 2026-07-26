@@ -116,4 +116,3 @@ const Dispatch = {
     this.renderBoard();
   }
 };
-

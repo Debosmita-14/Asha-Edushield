@@ -1,8 +1,20 @@
-# Secrets — never commit
+# Secrets â€” never commit
 .env
 *.key
+
+# Node
 node_modules/
 npm-debug.log*
+
+# Runtime logs
+server.log
+*.log
+
+# OS
 .DS_Store
 Thumbs.db
-external_repo/
+
+# Editor / local tooling
+.claude/
+.vscode/
+.idea/

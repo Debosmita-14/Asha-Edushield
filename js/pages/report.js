@@ -57,12 +57,27 @@ Pages.report = function (el) {
 };
 
 const Report = {
-  submit() {
+  async submit() {
     const type = document.getElementById('inc-type').value;
     const loc = document.getElementById('inc-loc').value || 'Not specified';
     const desc = document.getElementById('inc-desc').value;
     const anon = document.getElementById('anon-chk').checked;
-    const ticketId = 'INC-' + (4822 + Math.floor(Math.random() * 100));
+    const ticketId = 'INC-' + (5000 + Math.floor(Math.random() * 4000));
+
+    // Determine severity from type + push a LIVE event to the store
+    const sevMap = { 'Sexual Harassment':'critical','Physical Violence':'critical','Ragging':'high','Stalking':'high','Mental Harassment':'high','Bullying':'medium','Discrimination':'medium','Other':'medium' };
+    const sev = sevMap[type] || 'medium';
+    const aiSummary = await AI.analyzeText(
+      `Campus safety AI. Classify this ${type} report: "${desc}". Give severity and a 1-sentence summary for security.`,
+      `${type} reported at ${loc}. ${desc ? desc.slice(0,120) : 'No description provided.'} Severity: ${sev.toUpperCase()}.`
+    );
+    Store.add({
+      id: ticketId, type, sev, loc,
+      reporter: anon ? 'Anonymous' : 'Student (Identified)',
+      channel: 'report',
+      description: desc,
+      summary: aiSummary
+    });
 
     document.getElementById('report-result').innerHTML = `
     <div class="card animate-in" style="border-color:rgba(16,185,129,.3)">
@@ -116,4 +131,3 @@ const Report = {
     });
   }
 };
-

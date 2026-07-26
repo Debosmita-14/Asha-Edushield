@@ -39,10 +39,29 @@ Pages.incidents = function (el) {
   </div>
   <div id="inv-panel"></div>`;
 
-  IncidentPage.render(DATA.incidents);
+  IncidentPage.render(IncidentPage._allRows());
+  // Live: refresh table when new student reports/SOS/voice evidence arrive
+  Pages._liveUnsub = Store.subscribe(() => {
+    const tbody = document.getElementById('incidents-tbody');
+    if (tbody) IncidentPage.render(IncidentPage._allRows());
+  });
 };
 
 const IncidentPage = {
+  // Live store events (newest) merged ahead of seeded historical records
+  _allRows() {
+    const live = (typeof Store !== 'undefined') ? Store.all().map(e => Store.toIncident(e)) : [];
+    return live.concat(DATA.incidents);
+  },
+
+  _lookup(id) {
+    if (typeof Store !== 'undefined') {
+      const e = Store.find(id);
+      if (e) return Store.toIncident(e);
+    }
+    return DATA.incidents.find(i => i.id === id);
+  },
+
   render(rows) {
     const tbody = document.getElementById('incidents-tbody');
     const count = document.getElementById('incident-count');
@@ -65,11 +84,75 @@ const IncidentPage = {
       </tr>`).join('');
   },
 
+  // Student-submitted evidence block (transcript + audio + AI summary) for faculty/security/admin to analyze
+  _studentEvidence(e) {
+    return `
+    <div style="background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.25);border-radius:12px;padding:14px;margin-bottom:16px">
+      <div style="font-size:.75rem;color:#60a5fa;font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">
+        📥 Student-Submitted Evidence — analyze below
+      </div>
+      ${e.transcript ? `<div style="font-size:.74rem;color:var(--text2);margin-bottom:3px">Voice Transcript</div>
+      <div style="background:var(--bg);border-radius:8px;padding:10px;font-size:.82rem;margin-bottom:10px;line-height:1.5">"${e.transcript}"</div>` : ''}
+      ${e.description ? `<div style="font-size:.74rem;color:var(--text2);margin-bottom:3px">Description</div>
+      <div style="background:var(--bg);border-radius:8px;padding:10px;font-size:.82rem;margin-bottom:10px;line-height:1.5">${e.description}</div>` : ''}
+      ${e.summary ? `<div style="font-size:.74rem;color:var(--text2);margin-bottom:3px">AI Summary (Gemini)</div>
+      <div style="background:rgba(139,92,246,.1);border-radius:8px;padding:10px;font-size:.8rem;margin-bottom:10px;line-height:1.6">${e.summary}</div>` : ''}
+      ${e.audioFile ? `<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span class="pill medium">📁 ${e.audioFile}</span>
+        ${e.audioUrl ? `<audio controls src="${e.audioUrl}" style="height:34px;border-radius:8px;flex:1;min-width:180px"></audio>` : '<span style="font-size:.72rem;color:var(--text2)">(audio stored on server)</span>'}
+      </div>` : ''}
+    </div>`;
+  },
+
+  _evidenceColumn(id) {
+    const role = typeof App !== 'undefined' ? App.currentRole : '';
+    if (role === 'faculty') {
+      // Faculty: only exam/classroom image upload for analysis
+      return `
+      <div style="background:var(--bg3);border-radius:12px;padding:14px">
+        <div style="font-size:.75rem;color:var(--text2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Faculty Analysis</div>
+        <div style="font-size:.78rem;color:var(--text2);margin-bottom:10px;line-height:1.5">Upload exam-cheating or classroom-behavior images for Gemini Vision analysis.</div>
+        <label style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg);border-radius:8px;cursor:pointer;border:1px dashed var(--border)">
+          <i class="fas fa-camera" style="color:#3b82f6"></i>
+          <span style="font-size:.82rem">Upload Exam / Classroom Image</span>
+          <input type="file" accept="image/*" style="display:none" onchange="IncidentPage.analyzeImage(event,'${id}')">
+        </label>
+        <div id="evidence-preview-${id}" style="margin-top:10px"></div>
+        <div style="margin-top:10px;font-size:.72rem;color:var(--text2)">
+          Student-submitted audio/video evidence is shown in the AI investigation results below.
+        </div>
+      </div>`;
+    }
+    // Student / admin / security: full evidence upload
+    return `
+    <div style="background:var(--bg3);border-radius:12px;padding:14px">
+      <div style="font-size:.75rem;color:var(--text2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Evidence Upload</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <label style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg);border-radius:8px;cursor:pointer;border:1px dashed var(--border)">
+          <i class="fas fa-image" style="color:#3b82f6"></i>
+          <span style="font-size:.82rem">Upload Image Evidence</span>
+          <input type="file" accept="image/*" style="display:none" onchange="IncidentPage.analyzeImage(event,'${id}')">
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg);border-radius:8px;cursor:pointer;border:1px dashed var(--border)">
+          <i class="fas fa-microphone" style="color:#ef4444"></i>
+          <span style="font-size:.82rem">Upload Audio Evidence</span>
+          <input type="file" accept="audio/*" style="display:none" onchange="IncidentPage.analyzeAudio(event,'${id}')">
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg);border-radius:8px;cursor:pointer;border:1px dashed var(--border)">
+          <i class="fas fa-video" style="color:#8b5cf6"></i>
+          <span style="font-size:.82rem">Upload Video Evidence</span>
+          <input type="file" accept="video/*" style="display:none" onchange="IncidentPage.analyzeVideo(event,'${id}')">
+        </label>
+      </div>
+      <div id="evidence-preview-${id}" style="margin-top:10px"></div>
+    </div>`;
+  },
+
   filter() {
     const type = document.getElementById('filter-type').value;
     const sev  = document.getElementById('filter-sev').value;
     const stat = document.getElementById('filter-status').value;
-    let rows = DATA.incidents;
+    let rows = this._allRows();
     if (type !== 'all') rows = rows.filter(r => r.type === type);
     if (sev  !== 'all') rows = rows.filter(r => r.sev  === sev);
     if (stat !== 'all') rows = rows.filter(r => r.status === stat);
@@ -77,7 +160,7 @@ const IncidentPage = {
   },
 
   view(id) {
-    const inc = DATA.incidents.find(i => i.id === id);
+    const inc = this._lookup(id);
     if (!inc) return;
     const panel = document.getElementById('inv-panel');
     panel.innerHTML = `
@@ -114,8 +197,9 @@ const IncidentPage = {
   },
 
   investigate(id) {
-    const inc = DATA.incidents.find(i => i.id === id);
+    const inc = this._lookup(id);
     if (!inc) return;
+    const liveEvt = (typeof Store !== 'undefined') ? Store.find(id) : null;
     const panel = document.getElementById('inv-panel');
     panel.innerHTML = `
     <div class="card animate-in" style="border-color:rgba(139,92,246,.35)">
@@ -123,27 +207,7 @@ const IncidentPage = {
         <button class="btn ghost sm" onclick="document.getElementById('inv-panel').innerHTML=''"><i class="fas fa-times"></i></button>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
-        <div style="background:var(--bg3);border-radius:12px;padding:14px">
-          <div style="font-size:.75rem;color:var(--text2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Evidence Upload</div>
-          <div style="display:flex;flex-direction:column;gap:8px">
-            <label style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg);border-radius:8px;cursor:pointer;border:1px dashed var(--border)">
-              <i class="fas fa-image" style="color:#3b82f6"></i>
-              <span style="font-size:.82rem">Upload Image Evidence</span>
-              <input type="file" accept="image/*" style="display:none" onchange="IncidentPage.analyzeImage(event,'${id}')">
-            </label>
-            <label style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg);border-radius:8px;cursor:pointer;border:1px dashed var(--border)">
-              <i class="fas fa-microphone" style="color:#ef4444"></i>
-              <span style="font-size:.82rem">Upload Audio Evidence</span>
-              <input type="file" accept="audio/*" style="display:none" onchange="IncidentPage.analyzeAudio(event,'${id}')">
-            </label>
-            <label style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg);border-radius:8px;cursor:pointer;border:1px dashed var(--border)">
-              <i class="fas fa-video" style="color:#8b5cf6"></i>
-              <span style="font-size:.82rem">Upload Video Evidence</span>
-              <input type="file" accept="video/*" style="display:none" onchange="IncidentPage.analyzeVideo(event,'${id}')">
-            </label>
-          </div>
-          <div id="evidence-preview-${id}" style="margin-top:10px"></div>
-        </div>
+        ${this._evidenceColumn(id)}
         <div style="background:var(--bg3);border-radius:12px;padding:14px">
           <div style="font-size:.75rem;color:var(--text2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Case Summary</div>
           <div style="font-size:.83rem;line-height:1.7">
@@ -161,6 +225,7 @@ const IncidentPage = {
           </div>
         </div>
       </div>
+      ${liveEvt ? this._studentEvidence(liveEvt) : ''}
       <div id="inv-pipeline-${id}"></div>
       <div id="inv-result-${id}" style="margin-top:16px"></div>
     </div>`;
@@ -338,4 +403,3 @@ const IncidentPage = {
     });
   }
 };
-

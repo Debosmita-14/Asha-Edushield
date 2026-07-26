@@ -15,6 +15,8 @@ const DATA = {
         {section:'Campus'},
         {id:'map',icon:'fa-map-marker-alt',label:'Campus Map'},
         {id:'dashboard',icon:'fa-home',label:'My Dashboard'},
+        {section:'Account'},
+        {id:'profile',icon:'fa-id-card',label:'Profile & Contacts'},
       ]
     },
     faculty: {
@@ -23,7 +25,7 @@ const DATA = {
         {section:'Overview'},
         {id:'dashboard',icon:'fa-home',label:'Dashboard'},
         {section:'Classroom'},
-        {id:'classroom',icon:'fa-chalkboard',label:'Classroom AI'},
+        {id:'classroom',icon:'fa-shield-halved',label:'Classroom Guardian'},
         {id:'exam',icon:'fa-user-shield',label:'Exam Integrity'},
         {section:'Safety'},
         {id:'incidents',icon:'fa-list-alt',label:'Incidents'},
@@ -69,7 +71,6 @@ const DATA = {
     {id:'INC-4814',type:'Harassment',loc:'Lab Block',reporter:'Anonymous',time:'6 hr ago',sev:'medium',status:'Resolved',lat:28.6138,lng:77.2110},
     {id:'INC-4813',type:'Bullying',loc:'Sports Ground',reporter:'Vikram P.',time:'8 hr ago',sev:'low',status:'Resolved',lat:28.6125,lng:77.2065},
     {id:'INC-4812',type:'Mental Health',loc:'Hostel 2',reporter:'Anonymous',time:'10 hr ago',sev:'high',status:'Resolved',lat:28.6148,lng:77.2082},
-    {id:'INC-4811',type:'SOS',loc:'Sports Complex',reporter:'Nisha R.',time:'12 hr ago',sev:'critical',status:'Resolved',lat:28.6118,lng:77.2062},
   ],
 
   guards: [
@@ -99,6 +100,10 @@ const DATA = {
     {name:'Campus Analytics Agent',icon:'📈',status:'active',tasks:3,desc:'Aggregates all metrics for dashboards and compliance reports',color:'#14b8a6',inputs:'All incident data, engagement data, wellness data',outputs:'KPI dashboards, trend reports, compliance summaries'},
     {name:'Missing Student Agent',icon:'🔎',status:'idle',tasks:0,desc:'Face matching on CCTV, search coordination, authority alerts',color:'#64748b',inputs:'Missing report, last known location, student photo',outputs:'Search plan, CCTV match results, location predictions'},
     {name:'Compliance Agent',icon:'📜',status:'active',tasks:2,desc:'UGC/NAAC compliance reports, SLA monitoring, government dashboards',color:'#f43f5e',inputs:'All incident data, investigation outcomes, response times',outputs:'Compliance reports, SLA alerts, regulatory exports'},
+    {name:'Voice Evidence Agent',icon:'🎙',status:'active',tasks:9,desc:'Captures distress audio, transcribes speech, analyzes threat, generates evidence via ElevenLabs + Gemini',color:'#f59e0b',inputs:'Microphone audio, speech transcript, GPS',outputs:'Transcript, threat analysis, AI incident summary, sealed audio evidence'},
+    {name:'Learning Intelligence Agent',icon:'👁️',status:'active',tasks:6,desc:'Estimates attention, focus, confusion, fatigue and engagement from classroom frames via Gemini Vision',color:'#3b82f6',inputs:'Faculty classroom photo, lecture topic',outputs:'Engagement score, faculty insight, teaching recommendation, at-risk prediction'},
+    {name:'Classroom Guardian AI',icon:'🛡️',status:'active',tasks:11,desc:'OpenCV + YOLO + Gemini Vision: weapon detection, aggression/ragging prediction, emergency gesture recognition, exam-integrity overlay, attention analytics and a fused classroom risk score — human-in-the-loop alerts',color:'#8b5cf6',inputs:'Classroom / exam / hostel camera frame',outputs:'Bounding-box overlay, weapon/aggression/gesture flags, attention score, risk 0-100, auto emergency alert'},
+    {name:'Multimodal Investigation Agent',icon:'🧬',status:'active',tasks:7,desc:'Fuses audio, video, images, text reports and GPS into one complete incident report',color:'#a855f7',inputs:'Audio, video, images, text reports, GPS',outputs:'Unified incident report, timeline, confidence, recommended actions'},
   ],
 
   botResponses: {

@@ -70,11 +70,6 @@ const App = {
       { id: 'security', icon: 'fa-shield-alt', label: 'Security' },
       { id: 'admin', icon: 'fa-user-tie', label: 'Admin' },
     ];
-    const roleHint = document.createElement('div');
-    roleHint.className = 'logo-sub';
-    roleHint.textContent = 'Choose a role to enter the platform';
-    const container = document.getElementById('role-grid');
-    container.insertAdjacentElement('beforebegin', roleHint);
     document.getElementById('role-grid').innerHTML = roles.map((r, i) =>
       `<div class="role-btn${i === 0 ? ' selected' : ''}" onclick="App.selectRole(this,'${r.id}')">
         <i class="fas ${r.icon}"></i><span>${r.label}</span>
@@ -96,23 +91,19 @@ const App = {
     document.getElementById('user-avatar').style.background = `linear-gradient(135deg,${r.color},${r.color}99)`;
     this._buildNav();
     this.navigate('dashboard');
+    // Floating Voice SOS + Walk With ASHA — students only
+    if (typeof VoiceAgent !== 'undefined') {
+      if (this.currentRole === 'student') VoiceAgent.mount();
+      else VoiceAgent.unmount();
+    }
     setTimeout(() => UI.showToast('Welcome to ASHA EduShield 2.0', 'All 15 AI agents are active and monitoring.'), 900);
   },
 
   logout() {
     document.getElementById('app-page').classList.remove('active');
     document.getElementById('login-page').classList.add('active');
-    const area = document.getElementById('content-area');
-    if (area) area.innerHTML = '';
-    const badge = document.getElementById('notif-badge');
-    if (badge) badge.textContent = '0';
     this.mapInstance = null;
-  },
-
-  clearNotifications() {
-    const badge = document.getElementById('notif-badge');
-    if (badge) badge.textContent = '0';
-    UI.showToast('Alerts cleared', 'The live alert feed has been reset.', 'warning');
+    if (typeof VoiceAgent !== 'undefined') VoiceAgent.unmount();
   },
 
   _buildNav() {
@@ -138,17 +129,17 @@ const App = {
     const titles = {
       dashboard: 'Dashboard', sos: 'SOS Emergency', report: 'Report Incident',
       wellness: 'Wellness Chat', 'women-safety': 'Women Safety Agent',
-      classroom: 'Classroom Intelligence', exam: 'Exam Integrity',
+      classroom: 'Classroom Guardian AI', exam: 'Exam Integrity',
       incidents: 'Incident Management', dispatch: 'Live Dispatch',
       agents: 'AI Agent Pipeline', analytics: 'Campus Analytics',
-      'safe-travel': 'Safe Travel Mode', map: 'Campus Map'
+      'safe-travel': 'Safe Travel Mode', map: 'Campus Map', profile: 'Profile & Contacts'
     };
     const icons = {
       dashboard: 'fa-home', sos: 'fa-exclamation-circle', report: 'fa-flag',
       wellness: 'fa-heart', 'women-safety': 'fa-venus',
-      classroom: 'fa-chalkboard', exam: 'fa-user-shield',
+      classroom: 'fa-shield-halved', exam: 'fa-user-shield',
       incidents: 'fa-list-alt', dispatch: 'fa-bolt', agents: 'fa-robot',
-      analytics: 'fa-chart-bar', 'safe-travel': 'fa-route', map: 'fa-map-marker-alt'
+      analytics: 'fa-chart-bar', 'safe-travel': 'fa-route', map: 'fa-map-marker-alt', profile: 'fa-id-card'
     };
     document.getElementById('page-title').innerHTML =
       `<i class="fas ${icons[id] || 'fa-circle'}"></i> ${titles[id] || id}`;
@@ -156,6 +147,8 @@ const App = {
     const area = document.getElementById('content-area');
     area.innerHTML = '';
     this.mapInstance = null;
+    // Tear down any live-event subscription from the previous page
+    if (Pages._liveUnsub) { Pages._liveUnsub(); Pages._liveUnsub = null; }
 
     const pages = {
       dashboard: Pages.dashboard,
@@ -170,7 +163,8 @@ const App = {
       agents: Pages.agents,
       analytics: Pages.analytics,
       'safe-travel': Pages.safeTravel,
-      map: Pages.map
+      map: Pages.map,
+      profile: Pages.profile
     };
     if (pages[id]) pages[id](area);
   },
@@ -183,7 +177,6 @@ const App = {
       ['📋 Exam Alert', 'Suspicious behavior detected — Hall B, Seat C-05.', 'alert'],
       ['🛡 Guardian Agent', 'Threat level updated: Block B → HIGH risk zone.', 'warning'],
       ['📍 Safe Travel', 'Route deviation detected — Anjali K. near Market Road.', 'alert'],
-      ['✅ Dispatch', 'Responder team dispatched to the latest high-risk incident.', 'alert'],
     ];
     let i = 0;
     setInterval(() => {
@@ -195,4 +188,3 @@ const App = {
 };
 
 window.addEventListener('load', () => App.init());
-\n// milestone: app lifecycle

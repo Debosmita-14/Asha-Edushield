@@ -18,9 +18,6 @@
     <div style="margin-bottom:20px;padding:12px;background:rgba(59,130,246,.08);border-radius:10px;border:1px solid rgba(59,130,246,.2);font-size:.8rem;color:var(--text2);text-align:left">
       <strong style="color:var(--accent2)">Demo credentials</strong> — select any role and click Enter
     </div>
-    <div style="margin-bottom:18px;font-size:.76rem;color:var(--text2)">
-      <i class="fas fa-info-circle"></i> This demo highlights emergency response, wellbeing support, and campus intelligence workflows.
-    </div>
     <div class="role-grid" id="role-grid"></div>
     <button class="login-btn" onclick="App.login()">
       <i class="fas fa-shield-alt"></i> Enter Platform →
@@ -52,7 +49,7 @@
           <span style="font-size:.78rem;color:var(--text2);display:flex;align-items:center;gap:6px">
             <span class="live-dot"></span> All agents active
           </span>
-          <div class="notif-btn" onclick="App.clearNotifications()" title="Clear live alerts">
+          <div class="notif-btn" onclick="UI.showToast('3 new alerts','SOS · Ragging · Wellness','alert')">
             <i class="fas fa-bell" style="font-size:1.1rem;color:var(--text2)"></i>
             <span class="badge" id="notif-badge">3</span>
           </div>
@@ -76,23 +73,26 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="js/data.js"></script>
-<script src="js/agents.js"></script>
-<script src="js/ai.js"></script>
-<script src="js/pages/dashboard.js"></script>
-<script src="js/pages/sos.js"></script>
-<script src="js/pages/report.js"></script>
-<script src="js/pages/wellness.js"></script>
-<script src="js/pages/womensafety.js"></script>
-<script src="js/pages/classroom.js"></script>
-<script src="js/pages/exam.js"></script>
-<script src="js/pages/incidents.js"></script>
-<script src="js/pages/dispatch.js"></script>
-<script src="js/pages/agentspage.js"></script>
-<script src="js/pages/analytics.js"></script>
-<script src="js/pages/safetravel.js"></script>
-<script src="js/pages/map.js"></script>
-<script src="js/app.js"></script>
+<script src="js/data.js?v=4"></script>
+<script src="js/agents.js?v=4"></script>
+<script src="js/ai.js?v=4"></script>
+<script src="js/store.js?v=4"></script>
+<script src="js/pages/dashboard.js?v=4"></script>
+<script src="js/pages/sos.js?v=4"></script>
+<script src="js/pages/report.js?v=4"></script>
+<script src="js/pages/wellness.js?v=4"></script>
+<script src="js/pages/womensafety.js?v=4"></script>
+<script src="js/pages/classroom.js?v=4"></script>
+<script src="js/pages/exam.js?v=4"></script>
+<script src="js/pages/incidents.js?v=4"></script>
+<script src="js/pages/dispatch.js?v=4"></script>
+<script src="js/pages/agentspage.js?v=4"></script>
+<script src="js/pages/analytics.js?v=4"></script>
+<script src="js/pages/safetravel.js?v=4"></script>
+<script src="js/pages/map.js?v=4"></script>
+<script src="js/pages/profile.js?v=4"></script>
+<script src="js/voiceagent.js?v=4"></script>
+<script src="js/alertsystem.js?v=4"></script>
+<script src="js/app.js?v=4"></script>
 </body>
 </html>
-\n<!-- milestone: live experience -->

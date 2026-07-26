@@ -65,19 +65,45 @@ const SOS = {
   },
 
   _activate() {
+    if (this._activated) return;
     this._activated = true;
     const btn = document.getElementById('sos-btn');
     const status = document.getElementById('sos-status');
     if (btn) { btn.classList.add('activated'); btn.style.animation = 'pulse 1s infinite'; }
     if (status) status.innerHTML = '🔴 <strong style="color:#f87171">SOS ACTIVATED — Notifying all responders...</strong>';
-    UI.showToast('🚨 SOS Activated!', 'Guard #3 + Guard #7 + Warden notified. ETA 3 min.', 'alert');
-    this.shareLocation(true);
+    UI.showToast('🚨 SOS Activated!', 'Capturing location + generating alert…', 'alert');
+
+    // Collect any evidence recorded on this page (audio) to attach to the alert.
+    const evidence = [];
+    if (this._lastEvidenceUrl) evidence.push({ name: 'evidence_audio.webm', kind: 'audio', url: this._lastEvidenceUrl });
+
+    // Fire the full emergency pipeline: capture identity + GPS → AI summary →
+    // EMERGENCY ALERT card → multi-channel dispatch (email/SMS/WhatsApp) → escalation.
+    if (typeof AlertSystem !== 'undefined') {
+      AlertSystem.trigger({
+        type: 'SOS Emergency', sev: 'critical', channel: 'sos',
+        summaryHint: 'Student held the SOS button for 2 seconds.',
+        evidence,
+        onCard: html => {
+          const host = document.getElementById('sos-extra');
+          if (host) host.innerHTML = html;
+        }
+      });
+    } else if (typeof Store !== 'undefined') {
+      Store.add({ type: 'SOS', sev: 'critical', loc: 'Live GPS (locating...)', reporter: 'Student (SOS)', channel: 'sos' });
+    }
+
     Agents.runPipeline('sos-pipeline', Agents.sosPipeline, () => {
       UI.showToast('✅ Responders Dispatched', 'Rajan K. is 2 min away. Stay on the line.', 'alert');
       const btn2 = document.getElementById('sos-btn');
       if (btn2) {
         btn2.textContent = 'RESET';
-        btn2.onclick = () => { this._activated = false; btn2.classList.remove('activated'); btn2.style.animation=''; btn2.textContent='SOS'; btn2.onclick=null; const arc=document.getElementById('sos-arc'); if(arc){arc.style.strokeDashoffset='339.3';arc.style.opacity='0';} document.getElementById('sos-status').innerHTML='🟢 Ready — You are safe'; };
+        btn2.onclick = () => {
+          this._activated = false; btn2.classList.remove('activated'); btn2.style.animation=''; btn2.textContent='SOS'; btn2.onclick=null;
+          const arc=document.getElementById('sos-arc'); if(arc){arc.style.strokeDashoffset='339.3';arc.style.opacity='0';}
+          document.getElementById('sos-status').innerHTML='🟢 Ready — You are safe';
+          if (typeof AlertSystem !== 'undefined') AlertSystem.resolve();
+        };
       }
     });
   },
@@ -231,4 +257,3 @@ const SOS = {
     }
   }
 };
-
